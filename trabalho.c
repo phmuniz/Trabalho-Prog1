@@ -81,6 +81,18 @@ int RetornaQtdComida(tMapa mapa){
     return qtd_comida;
 }
 
+tMapa MovimentaPacMan(tMapa mapa, tJogada jogada){
+
+}
+
+tMapa MovimentaFantasma(tMapa mapa){
+    
+}
+
+void ImprimeEstadoAtual(tMapa mapa, tJogada jogada, int pontuacao){
+
+}
+
 void RealizarJogo(tMapa mapa){
     tJogada jogada;
     int i, pontuacao, qtd_comida;
@@ -89,13 +101,13 @@ void RealizarJogo(tMapa mapa){
 
     for(i=0; i<mapa.qtd_movimentos; i++){
         jogada = LeJogada();
-        //mapa = MovimentaPacMan(mapa, jogada);
-        //mapa = MovimentaFantasma(mapa);
+        mapa = MovimentaPacMan(mapa, jogada);
+        mapa = MovimentaFantasma(mapa);
         if(RetornaQtdComida(mapa) < qtd_comida){
             pontuacao++;
             qtd_comida--;
         }
-        //ImprimeEstadoAtual(mapa, jogada, pontuacao);
+        ImprimeEstadoAtual(mapa, jogada, pontuacao);
     }
 }
 
@@ -104,7 +116,7 @@ int main(){
 
     mapa = InicializarJogo();
 
-    //RealizarJogo(mapa);
+    RealizarJogo(mapa);
 
 
     return 0;
