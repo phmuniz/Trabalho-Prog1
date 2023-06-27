@@ -118,17 +118,17 @@ void ImprimeEstadoAtual(tMapa mapa, tJogada jogada, int pontuacao){
 
 void RealizarJogo(tMapa mapa){
     tJogada jogada;
-    int i, pontuacao, qtd_comida;
+    int i, pontuacao, qtd_comida_inicial, qtd_comida;
 
-    qtd_comida = RetornaQtdComida(mapa);
+    qtd_comida_inicial = RetornaQtdComida(mapa);
 
     for(i=0; i<mapa.qtd_movimentos; i++){
         jogada = LeJogada();
+        qtd_comida = RetornaQtdComida(mapa);
         mapa = MovimentaPacMan(mapa, jogada);
         mapa = MovimentaFantasma(mapa);
         if(RetornaQtdComida(mapa) < qtd_comida){
             pontuacao++;
-            qtd_comida--;
         }
         ImprimeEstadoAtual(mapa, jogada, pontuacao);
     }
