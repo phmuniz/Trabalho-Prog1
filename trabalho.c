@@ -8,6 +8,8 @@ typedef struct
     int qtd_movimentos;
     char tabuleiro[40][100];
     char comida[40][100];
+    char pacman[40][100];
+    char fantasma[40][100];
 }tMapa;
 
 typedef struct 
@@ -26,10 +28,29 @@ tMapa LeMapa(){
     for(i=0; i<mapa.linha; i++){
         for(j=0; j<mapa.coluna; j++){
             scanf("%c", &mapa.tabuleiro[i][j]);
+
             if(mapa.tabuleiro[i][j] == '*'){
                 mapa.comida[i][j] = '*';
             }else{
                 mapa.comida[i][j] = ' ';
+            }
+
+            if(mapa.tabuleiro[i][j] == '#'){
+                mapa.pacman[i][j] = '#';
+                mapa.fantasma[i][j] = '#';
+            }else if(mapa.tabuleiro[i][j] == '>'){
+                mapa.pacman[i][j] = '>';
+            }else if(mapa.tabuleiro[i][j] == 'B'){
+                mapa.fantasma[i][j] = 'B';
+            }else if(mapa.tabuleiro[i][j] == 'P'){
+                mapa.fantasma[i][j] = 'P';
+            }else if(mapa.tabuleiro[i][j] == 'I'){
+                mapa.fantasma[i][j] = 'I';
+            }else if(mapa.tabuleiro[i][j] == 'C'){
+                mapa.fantasma[i][j] = 'C';
+            }else{
+                mapa.pacman[i][j] = ' ';
+                mapa.fantasma[i][j] = ' ';
             }
         }
         scanf("%*c");
@@ -59,8 +80,8 @@ int LinhaPacMan(tMapa mapa){
     int i, j;
     for(i=0; i<mapa.linha; i++){
         for(j=0; j<mapa.coluna; j++){
-            if(EhPacMan(mapa.tabuleiro[i][j])){
-                return i+1;
+            if(EhPacMan(mapa.pacman[i][j])){
+                return i;
             }
         }
     }
@@ -71,8 +92,8 @@ int ColunaPacMan(tMapa mapa){
     int i, j;
     for(i=0; i<mapa.linha; i++){
         for(j=0; j<mapa.coluna; j++){
-            if(EhPacMan(mapa.tabuleiro[i][j])){
-                return j+1;
+            if(EhPacMan(mapa.pacman[i][j])){
+                return j;
             }
         }
     }
@@ -88,7 +109,7 @@ tMapa InicializarJogo(){
     cpacman = ColunaPacMan(mapa);
     //Gerar inicializacao.txt
     ImprimeMapa(mapa);
-    printf("Pac-Man comecara o jogo na linha %d e coluna %d\n", lpacman, cpacman);
+    printf("Pac-Man comecara o jogo na linha %d e coluna %d\n", lpacman+1, cpacman+1);
 }
 
 tJogada LeJogada(){
@@ -117,11 +138,53 @@ int RetornaQtdComida(tMapa mapa){
 }
 
 tMapa MovimentaPacMan(tMapa mapa, tJogada jogada){
+    int lpacman, cpacman;
 
+    lpacman = LinhaPacMan(mapa);
+    cpacman = ColunaPacMan(mapa);
+
+    switch (jogada.comando)
+    {
+
+    case 'w':
+        if(mapa.pacman[lpacman-1][cpacman] != '#'){
+            mapa.pacman[lpacman-1][cpacman] = '>';
+            mapa.pacman[lpacman][cpacman] = ' ';
+        }
+        break;
+
+    case 's':
+        if(mapa.pacman[lpacman+1][cpacman] != '#'){
+            mapa.pacman[lpacman+1][cpacman] = '>';
+            mapa.pacman[lpacman][cpacman] = ' ';
+        }
+        break;
+
+    case 'd':
+        if(mapa.pacman[lpacman][cpacman+1] != '#'){
+            mapa.pacman[lpacman][cpacman+1] = '>';
+            mapa.pacman[lpacman][cpacman] = ' ';
+        }
+        break;
+
+    case 'a':
+        if(mapa.pacman[lpacman][cpacman-1] != '#'){
+            mapa.pacman[lpacman][cpacman-1] = '>';
+            mapa.pacman[lpacman][cpacman] = ' ';
+        }
+        break;
+    
+    default:
+        break;
+    }
 }
 
 tMapa MovimentaFantasma(tMapa mapa){
     
+}
+
+tMapa AtualizaMovimentos(tMapa mapa){
+
 }
 
 void ImprimeEstadoAtual(tMapa mapa, tJogada jogada, int pontuacao){
@@ -174,13 +237,19 @@ void RealizarJogo(tMapa mapa){
     qtd_comida_inicial = RetornaQtdComida(mapa);
 
     for(i=0; i<mapa.qtd_movimentos; i++){
+
         jogada = LeJogada();
+
         qtd_comida = RetornaQtdComida(mapa);
+
         mapa = MovimentaPacMan(mapa, jogada);
         mapa = MovimentaFantasma(mapa);
+        mapa = AtualizaMovimentos(mapa);
+
         if(RetornaQtdComida(mapa) < qtd_comida){
             pontuacao++;
         }
+        
         ImprimeEstadoAtual(mapa, jogada, pontuacao);
 
         if(Ganhou(mapa, qtd_comida_inicial, pontuacao)){
