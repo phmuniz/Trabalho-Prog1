@@ -232,7 +232,7 @@ void ImprimeDerrota(int pontuacao){
 
 void RealizarJogo(tMapa mapa){
     tJogada jogada;
-    int i, pontuacao, qtd_comida_inicial, qtd_comida;
+    int i, pontuacao = 0, qtd_comida_inicial, qtd_comida;
 
     qtd_comida_inicial = RetornaQtdComida(mapa);
 
