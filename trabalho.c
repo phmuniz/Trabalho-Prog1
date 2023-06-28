@@ -1,11 +1,13 @@
 #include <stdio.h>
 
+//Criando os tipos necessarios para o jogo
 typedef struct 
 {
     int linha;
     int coluna;
     int qtd_movimentos;
     char tabuleiro[40][100];
+    char comida[40][100];
 }tMapa;
 
 typedef struct 
@@ -13,6 +15,7 @@ typedef struct
     char comando;
 }tJogada;
 
+//Funcao para ler as entradas dadas em mapa.txt
 tMapa LeMapa(){
     tMapa mapa;
 
@@ -23,6 +26,11 @@ tMapa LeMapa(){
     for(i=0; i<mapa.linha; i++){
         for(j=0; j<mapa.coluna; j++){
             scanf("%c", &mapa.tabuleiro[i][j]);
+            if(mapa.tabuleiro[i][j] == '*'){
+                mapa.comida[i][j] = '*';
+            }else{
+                mapa.comida[i][j] = ' ';
+            }
         }
         scanf("%*c");
     }
@@ -30,6 +38,7 @@ tMapa LeMapa(){
     return mapa;
 }
 
+//Funcao para imprimir o tabuleiro do mapa
 void ImprimeMapa(tMapa mapa){
     int i, j;
     for(i=0; i<mapa.linha; i++){
@@ -40,10 +49,12 @@ void ImprimeMapa(tMapa mapa){
     }
 }
 
+//Verifica se determinada peça é o PacMan
 int EhPacMan(char peca){
     return peca == '>';
 }
 
+//Retorna a linha do tabuleiro em que esta o PacMan
 int LinhaPacMan(tMapa mapa){
     int i, j;
     for(i=0; i<mapa.linha; i++){
@@ -55,6 +66,7 @@ int LinhaPacMan(tMapa mapa){
     }
 }
 
+//Retorna a coluna do tabuleiro em que esta o PacMan
 int ColunaPacMan(tMapa mapa){
     int i, j;
     for(i=0; i<mapa.linha; i++){
@@ -95,7 +107,7 @@ int RetornaQtdComida(tMapa mapa){
     int i, j, qtd_comida = 0;
     for(i=0; i<mapa.linha; i++){
         for(j=0; j<mapa.coluna; j++){
-            if(EhComida(mapa.tabuleiro[i][j])){
+            if(EhComida(mapa.comida[i][j])){
                 qtd_comida++;
             }
         }
@@ -113,7 +125,46 @@ tMapa MovimentaFantasma(tMapa mapa){
 }
 
 void ImprimeEstadoAtual(tMapa mapa, tJogada jogada, int pontuacao){
+    printf("Estado do jogo apos o movimento '%c':\n", jogada.comando);
+    ImprimeMapa(mapa);
+    printf("Pontuacao: %d\n", pontuacao);
+}
 
+int PacManEstaNoMapa(tMapa mapa){
+    int i, j;
+    for(i=0; i<mapa.linha; i++){
+        for(j=0; j<mapa.coluna; j++){
+            if(EhPacMan(mapa.tabuleiro[i][j])){
+                return 1;
+            }
+        }
+    }
+
+    return 0;
+}
+
+int Ganhou(tMapa mapa, int qtd_comida_inicial, int pontuacao){
+    if(PacManEstaNoMapa(mapa) && qtd_comida_inicial == pontuacao){
+        return 1;
+    }
+    return 0;
+}
+
+int Perdeu(tMapa mapa, int qtd_comida_inicial, int pontuacao){
+    if(PacManEstaNoMapa(mapa) == 0 && qtd_comida_inicial != pontuacao){
+        return 1;
+    }
+    return 0;
+}
+
+void ImprimeVitoria(int pontuacao){
+    printf("Voce venceu!\n");
+    printf("Pontuacao final: %d\n", pontuacao);
+}
+
+void ImprimeDerrota(int pontuacao){
+    printf("Game over!\n");
+    printf("Pontuacao final: %d\n", pontuacao);
 }
 
 void RealizarJogo(tMapa mapa){
@@ -131,6 +182,22 @@ void RealizarJogo(tMapa mapa){
             pontuacao++;
         }
         ImprimeEstadoAtual(mapa, jogada, pontuacao);
+
+        if(Ganhou(mapa, qtd_comida_inicial, pontuacao)){
+            ImprimeVitoria(pontuacao);
+            return;
+        }
+        if(Perdeu(mapa, qtd_comida_inicial, pontuacao)){
+            ImprimeDerrota(pontuacao);
+            return;
+        }
+    }
+
+    if(Ganhou(mapa, qtd_comida_inicial, pontuacao)){
+        ImprimeVitoria(pontuacao);
+    }
+    else if(Perdeu(mapa, qtd_comida_inicial, pontuacao)){
+        ImprimeDerrota(pontuacao);
     }
 }
 
