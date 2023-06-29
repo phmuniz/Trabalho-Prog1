@@ -8,14 +8,36 @@ typedef struct
     int qtd_movimentos;
     char tabuleiro[40][100];
     char comida[40][100];
-    char pacman[40][100];
-    char fantasma[40][100];
 }tMapa;
 
 typedef struct 
 {
-    char comando;
-}tJogada;
+    int linha;
+    int coluna;
+    int pontos;
+}tPacMan;
+
+typedef struct 
+{
+    char tipo;
+    int linha;
+    int coluna;
+    int direcao;
+}tFantasma;
+
+typedef struct 
+{
+    tMapa mapa;
+    tPacMan pacman;
+    tFantasma fantasmaB;
+    tFantasma fantasmaP;
+    tFantasma fantasmaI;
+    tFantasma fantasmaC;
+    char jogada;
+    int bateuFantasma;
+}tPartida;
+
+
 
 //Funcao para ler as entradas dadas em mapa.txt
 tMapa LeMapa(){
@@ -34,26 +56,8 @@ tMapa LeMapa(){
             }else{
                 mapa.comida[i][j] = ' ';
             }
-
-            if(mapa.tabuleiro[i][j] == '#'){
-                mapa.pacman[i][j] = '#';
-                mapa.fantasma[i][j] = '#';
-            }else if(mapa.tabuleiro[i][j] == '>'){
-                mapa.pacman[i][j] = '>';
-            }else if(mapa.tabuleiro[i][j] == 'B'){
-                mapa.fantasma[i][j] = 'B';
-            }else if(mapa.tabuleiro[i][j] == 'P'){
-                mapa.fantasma[i][j] = 'P';
-            }else if(mapa.tabuleiro[i][j] == 'I'){
-                mapa.fantasma[i][j] = 'I';
-            }else if(mapa.tabuleiro[i][j] == 'C'){
-                mapa.fantasma[i][j] = 'C';
-            }else{
-                mapa.pacman[i][j] = ' ';
-                mapa.fantasma[i][j] = ' ';
-            }
         }
-        scanf("%*c");
+        scanf("\n");
     }
 
     return mapa;
@@ -75,49 +79,41 @@ int EhPacMan(char peca){
     return peca == '>';
 }
 
-//Retorna a linha do tabuleiro em que esta o PacMan
-int LinhaPacMan(tMapa mapa){
+tPacMan InicializaPacMan(tMapa mapa){
+    tPacMan pacman;
+
+    pacman.pontos = 0;
+
     int i, j;
     for(i=0; i<mapa.linha; i++){
         for(j=0; j<mapa.coluna; j++){
-            if(EhPacMan(mapa.pacman[i][j])){
-                return i;
+            if(EhPacMan(mapa.tabuleiro[i][j])){
+                pacman.linha = i;
+                pacman.coluna = j;
             }
         }
     }
+
+    return pacman;
 }
 
-//Retorna a coluna do tabuleiro em que esta o PacMan
-int ColunaPacMan(tMapa mapa){
-    int i, j;
-    for(i=0; i<mapa.linha; i++){
-        for(j=0; j<mapa.coluna; j++){
-            if(EhPacMan(mapa.pacman[i][j])){
-                return j;
-            }
-        }
-    }
-}
-
-tMapa InicializarJogo(){
-    tMapa mapa;
-    int lpacman, cpacman;
-
-    mapa = LeMapa();
-
-    lpacman = LinhaPacMan(mapa);
-    cpacman = ColunaPacMan(mapa);
-    //Gerar inicializacao.txt
+void GeraInicializacao(tPacMan pacman, tMapa mapa){
     ImprimeMapa(mapa);
-    printf("Pac-Man comecara o jogo na linha %d e coluna %d\n", lpacman+1, cpacman+1);
+    printf("Pac-Man comecara o jogo na linha %d e coluna %d\n", pacman.linha+1, 
+    pacman.coluna+1);
 }
 
-tJogada LeJogada(){
-    tJogada jogada;
+tPartida InicializarJogo(){
+    tPartida partida;
 
-    scanf("%c\n", &jogada.comando);
+    partida.mapa = LeMapa();
+    partida.pacman = InicializaPacMan(partida.mapa);
+    partida.bateuFantasma = 0;
 
-    return jogada;
+    //Gerar inicializacao.txt
+    GeraInicializacao(partida.pacman, partida.mapa);
+
+    return partida;
 }
 
 int EhComida(char peca){
@@ -137,87 +133,92 @@ int RetornaQtdComida(tMapa mapa){
     return qtd_comida;
 }
 
-tMapa MovimentaPacMan(tMapa mapa, tJogada jogada){
-    int lpacman, cpacman;
+tPartida MovimentaPacMan(tMapa mapa, tPacMan pacman, char jogada){
+    tPartida partida;
 
-    lpacman = LinhaPacMan(mapa);
-    cpacman = ColunaPacMan(mapa);
-
-    switch (jogada.comando)
+    switch (jogada)
     {
 
     case 'w':
-        if(mapa.pacman[lpacman-1][cpacman] != '#'){
-            mapa.pacman[lpacman-1][cpacman] = '>';
-            mapa.pacman[lpacman][cpacman] = ' ';
+        if(mapa.tabuleiro[pacman.linha-1][pacman.coluna] == ' '){
+            mapa.tabuleiro[pacman.linha-1][pacman.coluna] = '>';
+            mapa.tabuleiro[pacman.linha][pacman.coluna] = ' ';
+            pacman.linha--;
+        }
+        else if(EhComida(mapa.tabuleiro[pacman.linha-1][pacman.coluna])){
+            mapa.tabuleiro[pacman.linha-1][pacman.coluna] = '>';
+            mapa.comida[pacman.linha-1][pacman.coluna] = ' ';
+            mapa.tabuleiro[pacman.linha][pacman.coluna] = ' ';
+            pacman.linha--;
+            pacman.pontos++;
         }
         break;
 
     case 's':
-        if(mapa.pacman[lpacman+1][cpacman] != '#'){
-            mapa.pacman[lpacman+1][cpacman] = '>';
-            mapa.pacman[lpacman][cpacman] = ' ';
+        if(mapa.tabuleiro[pacman.linha+1][pacman.coluna] == ' '){
+            mapa.tabuleiro[pacman.linha+1][pacman.coluna] = '>';
+            mapa.tabuleiro[pacman.linha][pacman.coluna] = ' ';
+            pacman.linha++;
+        }
+        else if(EhComida(mapa.tabuleiro[pacman.linha+1][pacman.coluna])){
+            mapa.tabuleiro[pacman.linha+1][pacman.coluna] = '>';
+            mapa.comida[pacman.linha+1][pacman.coluna] = ' ';
+            mapa.tabuleiro[pacman.linha][pacman.coluna] = ' ';
+            pacman.linha++;
+            pacman.pontos++;
         }
         break;
 
     case 'd':
-        if(mapa.pacman[lpacman][cpacman+1] != '#'){
-            mapa.pacman[lpacman][cpacman+1] = '>';
-            mapa.pacman[lpacman][cpacman] = ' ';
+        if(mapa.tabuleiro[pacman.linha][pacman.coluna+1] == ' '){
+            mapa.tabuleiro[pacman.linha][pacman.coluna+1] = '>';
+            mapa.tabuleiro[pacman.linha][pacman.coluna] = ' ';
+            pacman.coluna++;
+        }
+        else if(EhComida(mapa.tabuleiro[pacman.linha][pacman.coluna+1])){
+            mapa.tabuleiro[pacman.linha][pacman.coluna+1] = '>';
+            mapa.comida[pacman.linha][pacman.coluna+1] = ' ';
+            mapa.tabuleiro[pacman.linha][pacman.coluna] = ' ';
+            pacman.coluna++;
+            pacman.pontos++;
         }
         break;
 
     case 'a':
-        if(mapa.pacman[lpacman][cpacman-1] != '#'){
-            mapa.pacman[lpacman][cpacman-1] = '>';
-            mapa.pacman[lpacman][cpacman] = ' ';
+        if(mapa.tabuleiro[pacman.linha][pacman.coluna-1] == ' '){
+            mapa.tabuleiro[pacman.linha][pacman.coluna-1] = '>';
+            mapa.tabuleiro[pacman.linha][pacman.coluna] = ' ';
+            pacman.coluna--;
+        }
+        else if(EhComida(mapa.tabuleiro[pacman.linha][pacman.coluna-1])){
+            mapa.tabuleiro[pacman.linha][pacman.coluna-1] = '>';
+            mapa.comida[pacman.linha-1][pacman.coluna-1] = ' ';
+            mapa.tabuleiro[pacman.linha][pacman.coluna] = ' ';
+            pacman.coluna--;
+            pacman.pontos++;
         }
         break;
     
     default:
         break;
     }
+
+    partida.mapa = mapa;
+    partida.pacman = pacman;
+    partida.bateuFantasma = 0;
+    partida.jogada = jogada;
+
+    return partida;
 }
 
-tMapa MovimentaFantasma(tMapa mapa){
+tPartida MovimentaFantasma(tMapa mapa, tFantasma fantasma){
     
 }
 
-tMapa AtualizaMovimentos(tMapa mapa){
-
-}
-
-void ImprimeEstadoAtual(tMapa mapa, tJogada jogada, int pontuacao){
-    printf("Estado do jogo apos o movimento '%c':\n", jogada.comando);
+void ImprimeEstadoAtual(tMapa mapa, char jogada, int pontuacao){
+    printf("Estado do jogo apos o movimento '%c':\n", jogada);
     ImprimeMapa(mapa);
     printf("Pontuacao: %d\n", pontuacao);
-}
-
-int PacManEstaNoMapa(tMapa mapa){
-    int i, j;
-    for(i=0; i<mapa.linha; i++){
-        for(j=0; j<mapa.coluna; j++){
-            if(EhPacMan(mapa.tabuleiro[i][j])){
-                return 1;
-            }
-        }
-    }
-
-    return 0;
-}
-
-int Ganhou(tMapa mapa, int qtd_comida_inicial, int pontuacao){
-    if(PacManEstaNoMapa(mapa) && qtd_comida_inicial == pontuacao){
-        return 1;
-    }
-    return 0;
-}
-
-int Perdeu(tMapa mapa, int qtd_comida_inicial, int pontuacao){
-    if(PacManEstaNoMapa(mapa) == 0 && qtd_comida_inicial != pontuacao){
-        return 1;
-    }
-    return 0;
 }
 
 void ImprimeVitoria(int pontuacao){
@@ -230,52 +231,42 @@ void ImprimeDerrota(int pontuacao){
     printf("Pontuacao final: %d\n", pontuacao);
 }
 
-void RealizarJogo(tMapa mapa){
-    tJogada jogada;
-    int i, pontuacao = 0, qtd_comida_inicial, qtd_comida;
+void RealizarJogo(tPartida partida){
+    int i, pontuacao = 0, qtd_comida_inicial;
 
-    qtd_comida_inicial = RetornaQtdComida(mapa);
+    qtd_comida_inicial = RetornaQtdComida(partida.mapa);
 
-    for(i=0; i<mapa.qtd_movimentos; i++){
+    for(i=0; i<partida.mapa.qtd_movimentos; i++){
+        scanf("%c\n", &partida.jogada);
 
-        jogada = LeJogada();
-
-        qtd_comida = RetornaQtdComida(mapa);
-
-        mapa = MovimentaPacMan(mapa, jogada);
-        mapa = MovimentaFantasma(mapa);
-        mapa = AtualizaMovimentos(mapa);
-
-        if(RetornaQtdComida(mapa) < qtd_comida){
-            pontuacao++;
-        }
+        partida = MovimentaPacMan(partida.mapa, partida.pacman, partida.jogada);
+        //partida = MovimentaFantasma(partida.mapa, partida.fantasmaB);
         
-        ImprimeEstadoAtual(mapa, jogada, pontuacao);
+        ImprimeEstadoAtual(partida.mapa, partida.jogada, partida.pacman.pontos);
 
-        if(Ganhou(mapa, qtd_comida_inicial, pontuacao)){
-            ImprimeVitoria(pontuacao);
+        if(qtd_comida_inicial == partida.pacman.pontos){
+            ImprimeVitoria(partida.pacman.pontos);
             return;
         }
-        if(Perdeu(mapa, qtd_comida_inicial, pontuacao)){
-            ImprimeDerrota(pontuacao);
+        if(partida.bateuFantasma){
+            ImprimeDerrota(partida.pacman.pontos);
             return;
         }
     }
 
-    if(Ganhou(mapa, qtd_comida_inicial, pontuacao)){
-        ImprimeVitoria(pontuacao);
-    }
-    else if(Perdeu(mapa, qtd_comida_inicial, pontuacao)){
-        ImprimeDerrota(pontuacao);
+    if(qtd_comida_inicial == partida.pacman.pontos){
+        ImprimeVitoria(partida.pacman.pontos);
+    }else{
+        ImprimeDerrota(partida.pacman.pontos);
     }
 }
 
 int main(){
-    tMapa mapa;
+    tPartida partida;
 
-    mapa = InicializarJogo();
+    partida = InicializarJogo();
 
-    RealizarJogo(mapa);
+    RealizarJogo(partida);
 
 
     return 0;
