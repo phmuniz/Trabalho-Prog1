@@ -77,6 +77,10 @@ int EhPacMan(char peca){
     return peca == '>';
 }
 
+int EhFantasma(char peca){
+    return peca == 'B' || peca == 'P' || peca == 'I' || peca == 'C';
+}
+
 tPacMan InicializaPacMan(tMapa mapa){
     tPacMan pacman;
 
@@ -113,6 +117,8 @@ tFantasma InicializaFantasma(tMapa mapa, char tipo){
             }
         }
     }
+
+    return fantasma;
 }
 
 void GeraInicializacao(tPacMan pacman, tMapa mapa){
@@ -133,7 +139,7 @@ tPartida InicializarJogo(){
     partida.bateuFantasma = 0;
 
     //Gerar inicializacao.txt
-    GeraInicializacao(partida.pacman, partida.mapa);
+    //GeraInicializacao(partida.pacman, partida.mapa);
 
     return partida;
 }
@@ -156,28 +162,124 @@ int RetornaQtdComida(tMapa mapa){
 }
 
 tPartida MovimentaFantasma(tPartida partida){
+
+    //Verifica se o Fantasma B existe, se existe movimenta ele
     if(partida.fantasmaB.existe){
 
         if(partida.fantasmaB.direcao == 0){
-
+            if(EhComida(partida.mapa.tabuleiro[partida.fantasmaB.linha][partida.fantasmaB.coluna-1]) || 
+            EhPacMan(partida.mapa.tabuleiro[partida.fantasmaB.linha][partida.fantasmaB.coluna-1]) || 
+            partida.mapa.tabuleiro[partida.fantasmaB.linha][partida.fantasmaB.coluna-1] == ' '){
+                if(EhPacMan(partida.mapa.tabuleiro[partida.fantasmaB.linha][partida.fantasmaB.coluna-1]) && partida.jogada == 'd'){
+                    partida.bateuFantasma = 1;
+                }
+                partida.mapa.tabuleiro[partida.fantasmaB.linha][partida.fantasmaB.coluna-1] = 'B';
+                if(EhComida(partida.mapa.comida[partida.fantasmaB.linha][partida.fantasmaB.coluna])){
+                    partida.mapa.tabuleiro[partida.fantasmaB.linha][partida.fantasmaB.coluna] = '*';
+                }else{
+                    partida.mapa.tabuleiro[partida.fantasmaB.linha][partida.fantasmaB.coluna] = ' ';
+                }
+                partida.fantasmaB.coluna--;
+            }
+            else if(partida.mapa.tabuleiro[partida.fantasmaB.linha][partida.fantasmaB.coluna-1] == '#'){
+                partida.mapa.tabuleiro[partida.fantasmaB.linha][partida.fantasmaB.coluna+1] = 'B';
+                if(EhComida(partida.mapa.comida[partida.fantasmaB.linha][partida.fantasmaB.coluna])){
+                    partida.mapa.tabuleiro[partida.fantasmaB.linha][partida.fantasmaB.coluna] = '*';
+                }else{
+                    partida.mapa.tabuleiro[partida.fantasmaB.linha][partida.fantasmaB.coluna] = ' ';
+                }
+                partida.fantasmaB.coluna++;
+                partida.fantasmaB.direcao = 1;
+            }
         }
 
         else if(partida.fantasmaB.direcao){
-
+            if(EhComida(partida.mapa.tabuleiro[partida.fantasmaB.linha][partida.fantasmaB.coluna+1]) || 
+            EhPacMan(partida.mapa.tabuleiro[partida.fantasmaB.linha][partida.fantasmaB.coluna+1]) || 
+            partida.mapa.tabuleiro[partida.fantasmaB.linha][partida.fantasmaB.coluna+1] == ' '){
+                if(EhPacMan(partida.mapa.tabuleiro[partida.fantasmaB.linha][partida.fantasmaB.coluna+1]) && partida.jogada == 'a'){
+                    partida.bateuFantasma = 1;
+                }
+                partida.mapa.tabuleiro[partida.fantasmaB.linha][partida.fantasmaB.coluna+1] = 'B';
+                if(EhComida(partida.mapa.comida[partida.fantasmaB.linha][partida.fantasmaB.coluna])){
+                    partida.mapa.tabuleiro[partida.fantasmaB.linha][partida.fantasmaB.coluna] = '*';
+                }else{
+                    partida.mapa.tabuleiro[partida.fantasmaB.linha][partida.fantasmaB.coluna] = ' ';
+                }
+                partida.fantasmaB.coluna++;
+            }
+            else if(partida.mapa.tabuleiro[partida.fantasmaB.linha][partida.fantasmaB.coluna+1] == '#'){
+                partida.mapa.tabuleiro[partida.fantasmaB.linha][partida.fantasmaB.coluna-1] = 'B';
+                if(EhComida(partida.mapa.comida[partida.fantasmaB.linha][partida.fantasmaB.coluna])){
+                    partida.mapa.tabuleiro[partida.fantasmaB.linha][partida.fantasmaB.coluna] = '*';
+                }else{
+                    partida.mapa.tabuleiro[partida.fantasmaB.linha][partida.fantasmaB.coluna] = ' ';
+                }
+                partida.fantasmaB.coluna--;
+                partida.fantasmaB.direcao = 0;
+            }
         }
     }
 
+    //Verifica se o Fantasma P existe, se existe movimenta ele
     if(partida.fantasmaP.existe){
 
         if(partida.fantasmaP.direcao == 0){
-
+            if(EhComida(partida.mapa.tabuleiro[partida.fantasmaP.linha-1][partida.fantasmaP.coluna]) || 
+            EhPacMan(partida.mapa.tabuleiro[partida.fantasmaP.linha-1][partida.fantasmaP.coluna]) || 
+            partida.mapa.tabuleiro[partida.fantasmaP.linha-1][partida.fantasmaP.coluna] == ' '){
+                if(EhPacMan(partida.mapa.tabuleiro[partida.fantasmaP.linha-1][partida.fantasmaP.coluna]) && partida.jogada == 's'){
+                    partida.bateuFantasma = 1;
+                }
+                partida.mapa.tabuleiro[partida.fantasmaP.linha-1][partida.fantasmaP.coluna] = 'P';
+                if(EhComida(partida.mapa.comida[partida.fantasmaP.linha][partida.fantasmaP.coluna])){
+                    partida.mapa.tabuleiro[partida.fantasmaP.linha][partida.fantasmaP.coluna] = '*';
+                }else{
+                    partida.mapa.tabuleiro[partida.fantasmaP.linha][partida.fantasmaP.coluna] = ' ';
+                }
+                partida.fantasmaP.linha--;
+            }
+            else if(partida.mapa.tabuleiro[partida.fantasmaP.linha-1][partida.fantasmaP.coluna] == '#'){
+                partida.mapa.tabuleiro[partida.fantasmaP.linha+1][partida.fantasmaP.coluna] = 'P';
+                if(EhComida(partida.mapa.comida[partida.fantasmaP.linha][partida.fantasmaP.coluna])){
+                    partida.mapa.tabuleiro[partida.fantasmaP.linha][partida.fantasmaP.coluna] = '*';
+                }else{
+                    partida.mapa.tabuleiro[partida.fantasmaP.linha][partida.fantasmaP.coluna] = ' ';
+                }
+                partida.fantasmaP.linha++;
+                partida.fantasmaP.direcao = 1;
+            }
         }
 
         else if(partida.fantasmaP.direcao){
-            
+            if(EhComida(partida.mapa.tabuleiro[partida.fantasmaP.linha+1][partida.fantasmaP.coluna]) || 
+            EhPacMan(partida.mapa.tabuleiro[partida.fantasmaP.linha+1][partida.fantasmaP.coluna]) || 
+            partida.mapa.tabuleiro[partida.fantasmaP.linha+1][partida.fantasmaP.coluna] == ' '){
+                if(EhPacMan(partida.mapa.tabuleiro[partida.fantasmaP.linha+1][partida.fantasmaP.coluna]) && partida.jogada == 'w'){
+                    partida.bateuFantasma = 1;
+                }
+                partida.mapa.tabuleiro[partida.fantasmaP.linha+1][partida.fantasmaP.coluna] = 'P';
+                if(EhComida(partida.mapa.comida[partida.fantasmaP.linha][partida.fantasmaP.coluna])){
+                    partida.mapa.tabuleiro[partida.fantasmaP.linha][partida.fantasmaP.coluna] = '*';
+                }else{
+                    partida.mapa.tabuleiro[partida.fantasmaP.linha][partida.fantasmaP.coluna] = ' ';
+                }
+                partida.fantasmaP.linha++;
+            }
+            else if(partida.mapa.tabuleiro[partida.fantasmaP.linha+1][partida.fantasmaP.coluna] == '#'){
+                partida.mapa.tabuleiro[partida.fantasmaP.linha-1][partida.fantasmaP.coluna] = 'P';
+                if(EhComida(partida.mapa.comida[partida.fantasmaP.linha][partida.fantasmaP.coluna])){
+                    partida.mapa.tabuleiro[partida.fantasmaP.linha][partida.fantasmaP.coluna] = '*';
+                }else{
+                    partida.mapa.tabuleiro[partida.fantasmaP.linha][partida.fantasmaP.coluna] = ' ';
+                }
+                partida.fantasmaP.linha--;
+                partida.fantasmaP.direcao = 0;
+            }
         }
     }
 
+    //Verifica se o Fantasma I existe, se existe movimenta ele
     if(partida.fantasmaI.existe){
 
         if(partida.fantasmaI.direcao == 0){
@@ -189,6 +291,7 @@ tPartida MovimentaFantasma(tPartida partida){
         }
     }
 
+    //Verifica se o Fantasma C existe, se existe movimenta ele
     if(partida.fantasmaC.existe){
 
         if(partida.fantasmaC.direcao == 0){
@@ -203,80 +306,114 @@ tPartida MovimentaFantasma(tPartida partida){
     return partida;
 }
 
-tPartida MovimentaPacMan(tMapa mapa, tPacMan pacman, char jogada){
-    tPartida partida;
+tPartida MovimentaPacMan(tPartida partida){
 
-    switch (jogada)
+    switch (partida.jogada)
     {
 
     case 'w':
-        if(mapa.tabuleiro[pacman.linha-1][pacman.coluna] == ' '){
-            mapa.tabuleiro[pacman.linha-1][pacman.coluna] = '>';
-            mapa.tabuleiro[pacman.linha][pacman.coluna] = ' ';
-            pacman.linha--;
+        if(partida.mapa.tabuleiro[partida.pacman.linha-1][partida.pacman.coluna] == ' '){
+            partida.mapa.tabuleiro[partida.pacman.linha-1][partida.pacman.coluna] = '>';
+            if(EhFantasma(partida.mapa.tabuleiro[partida.pacman.linha][partida.pacman.coluna]) == 0){
+                partida.mapa.tabuleiro[partida.pacman.linha][partida.pacman.coluna] = ' ';
+            }
+            partida.pacman.linha--;
         }
-        else if(EhComida(mapa.tabuleiro[pacman.linha-1][pacman.coluna])){
-            mapa.tabuleiro[pacman.linha-1][pacman.coluna] = '>';
-            mapa.comida[pacman.linha-1][pacman.coluna] = ' ';
-            mapa.tabuleiro[pacman.linha][pacman.coluna] = ' ';
-            pacman.linha--;
-            pacman.pontos++;
+        else if(EhComida(partida.mapa.tabuleiro[partida.pacman.linha-1][partida.pacman.coluna])){
+            partida.mapa.tabuleiro[partida.pacman.linha-1][partida.pacman.coluna] = '>';
+            partida.mapa.comida[partida.pacman.linha-1][partida.pacman.coluna] = ' ';
+            if(EhFantasma(partida.mapa.tabuleiro[partida.pacman.linha][partida.pacman.coluna]) == 0){
+                partida.mapa.tabuleiro[partida.pacman.linha][partida.pacman.coluna] = ' ';
+            }
+            partida.pacman.linha--;
+            partida.pacman.pontos++;
+        }
+        else if(EhFantasma(partida.mapa.tabuleiro[partida.pacman.linha-1][partida.pacman.coluna])){
+            if(EhFantasma(partida.mapa.tabuleiro[partida.pacman.linha][partida.pacman.coluna]) == 0){
+                partida.mapa.tabuleiro[partida.pacman.linha][partida.pacman.coluna] = ' ';
+            }
+            partida.bateuFantasma = 1;
         }
         break;
 
     case 's':
-        if(mapa.tabuleiro[pacman.linha+1][pacman.coluna] == ' '){
-            mapa.tabuleiro[pacman.linha+1][pacman.coluna] = '>';
-            mapa.tabuleiro[pacman.linha][pacman.coluna] = ' ';
-            pacman.linha++;
+        if(partida.mapa.tabuleiro[partida.pacman.linha+1][partida.pacman.coluna] == ' '){
+            partida.mapa.tabuleiro[partida.pacman.linha+1][partida.pacman.coluna] = '>';
+            if(EhFantasma(partida.mapa.tabuleiro[partida.pacman.linha][partida.pacman.coluna]) == 0){
+                partida.mapa.tabuleiro[partida.pacman.linha][partida.pacman.coluna] = ' ';
+            }
+            partida.pacman.linha++;
         }
-        else if(EhComida(mapa.tabuleiro[pacman.linha+1][pacman.coluna])){
-            mapa.tabuleiro[pacman.linha+1][pacman.coluna] = '>';
-            mapa.comida[pacman.linha+1][pacman.coluna] = ' ';
-            mapa.tabuleiro[pacman.linha][pacman.coluna] = ' ';
-            pacman.linha++;
-            pacman.pontos++;
+        else if(EhComida(partida.mapa.tabuleiro[partida.pacman.linha+1][partida.pacman.coluna])){
+            partida.mapa.tabuleiro[partida.pacman.linha+1][partida.pacman.coluna] = '>';
+            partida.mapa.comida[partida.pacman.linha+1][partida.pacman.coluna] = ' ';
+            if(EhFantasma(partida.mapa.tabuleiro[partida.pacman.linha][partida.pacman.coluna]) == 0){
+                partida.mapa.tabuleiro[partida.pacman.linha][partida.pacman.coluna] = ' ';
+            }
+            partida.pacman.linha++;
+            partida.pacman.pontos++;
+        }
+        else if(EhFantasma(partida.mapa.tabuleiro[partida.pacman.linha+1][partida.pacman.coluna])){
+            if(EhFantasma(partida.mapa.tabuleiro[partida.pacman.linha][partida.pacman.coluna]) == 0){
+                partida.mapa.tabuleiro[partida.pacman.linha][partida.pacman.coluna] = ' ';
+            }
+            partida.bateuFantasma = 1;
         }
         break;
 
     case 'd':
-        if(mapa.tabuleiro[pacman.linha][pacman.coluna+1] == ' '){
-            mapa.tabuleiro[pacman.linha][pacman.coluna+1] = '>';
-            mapa.tabuleiro[pacman.linha][pacman.coluna] = ' ';
-            pacman.coluna++;
+        if(partida.mapa.tabuleiro[partida.pacman.linha][partida.pacman.coluna+1] == ' '){
+            partida.mapa.tabuleiro[partida.pacman.linha][partida.pacman.coluna+1] = '>';
+            if(EhFantasma(partida.mapa.tabuleiro[partida.pacman.linha][partida.pacman.coluna]) == 0){
+                partida.mapa.tabuleiro[partida.pacman.linha][partida.pacman.coluna] = ' ';
+            }
+            partida.pacman.coluna++;
         }
-        else if(EhComida(mapa.tabuleiro[pacman.linha][pacman.coluna+1])){
-            mapa.tabuleiro[pacman.linha][pacman.coluna+1] = '>';
-            mapa.comida[pacman.linha][pacman.coluna+1] = ' ';
-            mapa.tabuleiro[pacman.linha][pacman.coluna] = ' ';
-            pacman.coluna++;
-            pacman.pontos++;
+        else if(EhComida(partida.mapa.tabuleiro[partida.pacman.linha][partida.pacman.coluna+1])){
+            partida.mapa.tabuleiro[partida.pacman.linha][partida.pacman.coluna+1] = '>';
+            partida.mapa.comida[partida.pacman.linha][partida.pacman.coluna+1] = ' ';
+            if(EhFantasma(partida.mapa.tabuleiro[partida.pacman.linha][partida.pacman.coluna]) == 0){
+                partida.mapa.tabuleiro[partida.pacman.linha][partida.pacman.coluna] = ' ';
+            }
+            partida.pacman.coluna++;
+            partida.pacman.pontos++;
+        }
+        else if(EhFantasma(partida.mapa.tabuleiro[partida.pacman.linha][partida.pacman.coluna+1])){
+            if(EhFantasma(partida.mapa.tabuleiro[partida.pacman.linha][partida.pacman.coluna]) == 0){
+                partida.mapa.tabuleiro[partida.pacman.linha][partida.pacman.coluna] = ' ';
+            }
+            partida.bateuFantasma = 1;
         }
         break;
 
     case 'a':
-        if(mapa.tabuleiro[pacman.linha][pacman.coluna-1] == ' '){
-            mapa.tabuleiro[pacman.linha][pacman.coluna-1] = '>';
-            mapa.tabuleiro[pacman.linha][pacman.coluna] = ' ';
-            pacman.coluna--;
+        if(partida.mapa.tabuleiro[partida.pacman.linha][partida.pacman.coluna-1] == ' '){
+            partida.mapa.tabuleiro[partida.pacman.linha][partida.pacman.coluna-1] = '>';
+            if(EhFantasma(partida.mapa.tabuleiro[partida.pacman.linha][partida.pacman.coluna]) == 0){
+                partida.mapa.tabuleiro[partida.pacman.linha][partida.pacman.coluna] = ' ';
+            }
+            partida.pacman.coluna--;
         }
-        else if(EhComida(mapa.tabuleiro[pacman.linha][pacman.coluna-1])){
-            mapa.tabuleiro[pacman.linha][pacman.coluna-1] = '>';
-            mapa.comida[pacman.linha-1][pacman.coluna-1] = ' ';
-            mapa.tabuleiro[pacman.linha][pacman.coluna] = ' ';
-            pacman.coluna--;
-            pacman.pontos++;
+        else if(EhComida(partida.mapa.tabuleiro[partida.pacman.linha][partida.pacman.coluna-1])){
+            partida.mapa.tabuleiro[partida.pacman.linha][partida.pacman.coluna-1] = '>';
+            partida.mapa.comida[partida.pacman.linha-1][partida.pacman.coluna-1] = ' ';
+            if(EhFantasma(partida.mapa.tabuleiro[partida.pacman.linha][partida.pacman.coluna]) == 0){
+                partida.mapa.tabuleiro[partida.pacman.linha][partida.pacman.coluna] = ' ';
+            }
+            partida.pacman.coluna--;
+            partida.pacman.pontos++;
+        }
+        else if(EhFantasma(partida.mapa.tabuleiro[partida.pacman.linha][partida.pacman.coluna-1])){
+            if(EhFantasma(partida.mapa.tabuleiro[partida.pacman.linha][partida.pacman.coluna]) == 0){
+                partida.mapa.tabuleiro[partida.pacman.linha][partida.pacman.coluna] = ' ';
+            }
+            partida.bateuFantasma = 1;
         }
         break;
     
     default:
         break;
     }
-
-    partida.mapa = mapa;
-    partida.pacman = pacman;
-    partida.bateuFantasma = 0;
-    partida.jogada = jogada;
 
     return partida;
 }
@@ -285,6 +422,7 @@ void ImprimeEstadoAtual(tMapa mapa, char jogada, int pontuacao){
     printf("Estado do jogo apos o movimento '%c':\n", jogada);
     ImprimeMapa(mapa);
     printf("Pontuacao: %d\n", pontuacao);
+    printf("\n");
 }
 
 void ImprimeVitoria(int pontuacao){
@@ -306,7 +444,9 @@ void RealizarJogo(tPartida partida){
         scanf("%c\n", &partida.jogada);
 
         partida = MovimentaFantasma(partida);
-        partida = MovimentaPacMan(partida.mapa, partida.pacman, partida.jogada);
+        if(partida.bateuFantasma == 0){
+            partida = MovimentaPacMan(partida);
+        }
         
         ImprimeEstadoAtual(partida.mapa, partida.jogada, partida.pacman.pontos);
 
