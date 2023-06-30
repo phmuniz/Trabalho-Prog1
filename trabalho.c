@@ -19,10 +19,10 @@ typedef struct
 
 typedef struct 
 {
-    char tipo;
+    int existe; // O se não existe, 1 se existe
     int linha;
     int coluna;
-    int direcao;
+    int direcao; // 0 direção inicial, 1 direção contrária 
 }tFantasma;
 
 typedef struct 
@@ -34,10 +34,8 @@ typedef struct
     tFantasma fantasmaI;
     tFantasma fantasmaC;
     char jogada;
-    int bateuFantasma;
+    int bateuFantasma; // 0 se não bateu, 1 se bateu
 }tPartida;
-
-
 
 //Funcao para ler as entradas dadas em mapa.txt
 tMapa LeMapa(){
@@ -97,6 +95,26 @@ tPacMan InicializaPacMan(tMapa mapa){
     return pacman;
 }
 
+tFantasma InicializaFantasma(tMapa mapa, char tipo){
+    tFantasma fantasma;
+
+    fantasma.existe = 0;
+    fantasma.direcao = 0;
+
+    int i, j;
+    for(i=0; i<mapa.linha; i++){
+        for(j=0; j<mapa.coluna; j++){
+            if(mapa.tabuleiro[i][j] == tipo){
+                fantasma.linha = i;
+                fantasma.coluna = j;
+                fantasma.existe = 1;
+
+                return fantasma;
+            }
+        }
+    }
+}
+
 void GeraInicializacao(tPacMan pacman, tMapa mapa){
     ImprimeMapa(mapa);
     printf("Pac-Man comecara o jogo na linha %d e coluna %d\n", pacman.linha+1, 
@@ -108,6 +126,10 @@ tPartida InicializarJogo(){
 
     partida.mapa = LeMapa();
     partida.pacman = InicializaPacMan(partida.mapa);
+    partida.fantasmaB = InicializaFantasma(partida.mapa, 'B');
+    partida.fantasmaP = InicializaFantasma(partida.mapa, 'P');
+    partida.fantasmaI = InicializaFantasma(partida.mapa, 'I');
+    partida.fantasmaC = InicializaFantasma(partida.mapa, 'C');
     partida.bateuFantasma = 0;
 
     //Gerar inicializacao.txt
@@ -131,6 +153,54 @@ int RetornaQtdComida(tMapa mapa){
     }
 
     return qtd_comida;
+}
+
+tPartida MovimentaFantasma(tPartida partida){
+    if(partida.fantasmaB.existe){
+
+        if(partida.fantasmaB.direcao == 0){
+
+        }
+
+        else if(partida.fantasmaB.direcao){
+
+        }
+    }
+
+    if(partida.fantasmaP.existe){
+
+        if(partida.fantasmaP.direcao == 0){
+
+        }
+
+        else if(partida.fantasmaP.direcao){
+            
+        }
+    }
+
+    if(partida.fantasmaI.existe){
+
+        if(partida.fantasmaI.direcao == 0){
+
+        }
+
+        else if(partida.fantasmaI.direcao){
+            
+        }
+    }
+
+    if(partida.fantasmaC.existe){
+
+        if(partida.fantasmaC.direcao == 0){
+
+        }
+
+        else if(partida.fantasmaC.direcao){
+            
+        }
+    }
+
+    return partida;
 }
 
 tPartida MovimentaPacMan(tMapa mapa, tPacMan pacman, char jogada){
@@ -211,10 +281,6 @@ tPartida MovimentaPacMan(tMapa mapa, tPacMan pacman, char jogada){
     return partida;
 }
 
-tPartida MovimentaFantasma(tMapa mapa, tFantasma fantasma){
-    
-}
-
 void ImprimeEstadoAtual(tMapa mapa, char jogada, int pontuacao){
     printf("Estado do jogo apos o movimento '%c':\n", jogada);
     ImprimeMapa(mapa);
@@ -239,8 +305,8 @@ void RealizarJogo(tPartida partida){
     for(i=0; i<partida.mapa.qtd_movimentos; i++){
         scanf("%c\n", &partida.jogada);
 
+        partida = MovimentaFantasma(partida);
         partida = MovimentaPacMan(partida.mapa, partida.pacman, partida.jogada);
-        //partida = MovimentaFantasma(partida.mapa, partida.fantasmaB);
         
         ImprimeEstadoAtual(partida.mapa, partida.jogada, partida.pacman.pontos);
 
