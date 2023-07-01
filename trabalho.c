@@ -283,11 +283,57 @@ tPartida MovimentaFantasma(tPartida partida){
     if(partida.fantasmaI.existe){
 
         if(partida.fantasmaI.direcao == 0){
-
+            if(EhComida(partida.mapa.tabuleiro[partida.fantasmaI.linha+1][partida.fantasmaI.coluna]) || 
+            EhPacMan(partida.mapa.tabuleiro[partida.fantasmaI.linha+1][partida.fantasmaI.coluna]) || 
+            partida.mapa.tabuleiro[partida.fantasmaI.linha+1][partida.fantasmaI.coluna] == ' '){
+                if(EhPacMan(partida.mapa.tabuleiro[partida.fantasmaI.linha+1][partida.fantasmaI.coluna]) && partida.jogada == 'd'){
+                    partida.bateuFantasma = 1;
+                }
+                partida.mapa.tabuleiro[partida.fantasmaI.linha+1][partida.fantasmaI.coluna] = 'I';
+                if(EhComida(partida.mapa.comida[partida.fantasmaI.linha][partida.fantasmaI.coluna])){
+                    partida.mapa.tabuleiro[partida.fantasmaI.linha][partida.fantasmaI.coluna] = '*';
+                }else{
+                    partida.mapa.tabuleiro[partida.fantasmaI.linha][partida.fantasmaI.coluna] = ' ';
+                }
+                partida.fantasmaI.linha++;
+            }
+            else if(partida.mapa.tabuleiro[partida.fantasmaI.linha+1][partida.fantasmaI.coluna] == '#'){
+                partida.mapa.tabuleiro[partida.fantasmaI.linha-1][partida.fantasmaI.coluna] = 'I';
+                if(EhComida(partida.mapa.comida[partida.fantasmaI.linha][partida.fantasmaI.coluna])){
+                    partida.mapa.tabuleiro[partida.fantasmaI.linha][partida.fantasmaI.coluna] = '*';
+                }else{
+                    partida.mapa.tabuleiro[partida.fantasmaI.linha][partida.fantasmaI.coluna] = ' ';
+                }
+                partida.fantasmaI.linha--;
+                partida.fantasmaI.direcao = 1;
+            }
         }
 
         else if(partida.fantasmaI.direcao){
-            
+            if(EhComida(partida.mapa.tabuleiro[partida.fantasmaI.linha-1][partida.fantasmaI.coluna]) || 
+            EhPacMan(partida.mapa.tabuleiro[partida.fantasmaI.linha-1][partida.fantasmaI.coluna]) || 
+            partida.mapa.tabuleiro[partida.fantasmaI.linha-1][partida.fantasmaI.coluna] == ' '){
+                if(EhPacMan(partida.mapa.tabuleiro[partida.fantasmaI.linha-1][partida.fantasmaI.coluna]) && partida.jogada == 'd'){
+                    partida.bateuFantasma = 1;
+                }
+                partida.mapa.tabuleiro[partida.fantasmaI.linha-1][partida.fantasmaI.coluna] = 'I';
+                if(EhComida(partida.mapa.comida[partida.fantasmaI.linha][partida.fantasmaI.coluna])){
+                    partida.mapa.tabuleiro[partida.fantasmaI.linha][partida.fantasmaI.coluna] = '*';
+                }else{
+                    partida.mapa.tabuleiro[partida.fantasmaI.linha][partida.fantasmaI.coluna] = ' ';
+                }
+                partida.fantasmaI.linha--;
+            }
+            else if(partida.mapa.tabuleiro[partida.fantasmaI.linha-1][partida.fantasmaI.coluna] == '#'){
+                partida.mapa.tabuleiro[partida.fantasmaI.linha+1][partida.fantasmaI.coluna] = 'I';
+                if(EhComida(partida.mapa.comida[partida.fantasmaI.linha][partida.fantasmaI.coluna])){
+                    partida.mapa.tabuleiro[partida.fantasmaI.linha][partida.fantasmaI.coluna] = '*';
+                }else{
+                    partida.mapa.tabuleiro[partida.fantasmaI.linha][partida.fantasmaI.coluna] = ' ';
+                }
+                partida.fantasmaI.linha++;
+                partida.fantasmaI.direcao = 0;
+            }
         }
     }
 
@@ -295,11 +341,57 @@ tPartida MovimentaFantasma(tPartida partida){
     if(partida.fantasmaC.existe){
 
         if(partida.fantasmaC.direcao == 0){
-
+            if(EhComida(partida.mapa.tabuleiro[partida.fantasmaC.linha][partida.fantasmaC.coluna+1]) || 
+            EhPacMan(partida.mapa.tabuleiro[partida.fantasmaC.linha][partida.fantasmaC.coluna+1]) || 
+            partida.mapa.tabuleiro[partida.fantasmaC.linha][partida.fantasmaC.coluna+1] == ' '){
+                if(EhPacMan(partida.mapa.tabuleiro[partida.fantasmaC.linha][partida.fantasmaC.coluna+1]) && partida.jogada == 'd'){
+                    partida.bateuFantasma = 1;
+                }
+                partida.mapa.tabuleiro[partida.fantasmaC.linha][partida.fantasmaC.coluna+1] = 'C';
+                if(EhComida(partida.mapa.comida[partida.fantasmaC.linha][partida.fantasmaC.coluna])){
+                    partida.mapa.tabuleiro[partida.fantasmaC.linha][partida.fantasmaC.coluna] = '*';
+                }else{
+                    partida.mapa.tabuleiro[partida.fantasmaC.linha][partida.fantasmaC.coluna] = ' ';
+                }
+                partida.fantasmaC.coluna++;
+            }
+            else if(partida.mapa.tabuleiro[partida.fantasmaC.linha][partida.fantasmaC.coluna+1] == '#'){
+                partida.mapa.tabuleiro[partida.fantasmaC.linha][partida.fantasmaC.coluna-1] = 'C';
+                if(EhComida(partida.mapa.comida[partida.fantasmaC.linha][partida.fantasmaC.coluna])){
+                    partida.mapa.tabuleiro[partida.fantasmaC.linha][partida.fantasmaC.coluna] = '*';
+                }else{
+                    partida.mapa.tabuleiro[partida.fantasmaC.linha][partida.fantasmaC.coluna] = ' ';
+                }
+                partida.fantasmaC.coluna--;
+                partida.fantasmaC.direcao = 1;
+            }
         }
 
         else if(partida.fantasmaC.direcao){
-            
+            if(EhComida(partida.mapa.tabuleiro[partida.fantasmaC.linha][partida.fantasmaC.coluna-1]) || 
+            EhPacMan(partida.mapa.tabuleiro[partida.fantasmaC.linha][partida.fantasmaC.coluna-1]) || 
+            partida.mapa.tabuleiro[partida.fantasmaC.linha][partida.fantasmaC.coluna-1] == ' '){
+                if(EhPacMan(partida.mapa.tabuleiro[partida.fantasmaC.linha][partida.fantasmaC.coluna-1]) && partida.jogada == 'd'){
+                    partida.bateuFantasma = 1;
+                }
+                partida.mapa.tabuleiro[partida.fantasmaC.linha][partida.fantasmaC.coluna-1] = 'C';
+                if(EhComida(partida.mapa.comida[partida.fantasmaC.linha][partida.fantasmaC.coluna])){
+                    partida.mapa.tabuleiro[partida.fantasmaC.linha][partida.fantasmaC.coluna] = '*';
+                }else{
+                    partida.mapa.tabuleiro[partida.fantasmaC.linha][partida.fantasmaC.coluna] = ' ';
+                }
+                partida.fantasmaC.coluna--;
+            }
+            else if(partida.mapa.tabuleiro[partida.fantasmaC.linha][partida.fantasmaC.coluna-1] == '#'){
+                partida.mapa.tabuleiro[partida.fantasmaC.linha][partida.fantasmaC.coluna+1] = 'C';
+                if(EhComida(partida.mapa.comida[partida.fantasmaC.linha][partida.fantasmaC.coluna])){
+                    partida.mapa.tabuleiro[partida.fantasmaC.linha][partida.fantasmaC.coluna] = '*';
+                }else{
+                    partida.mapa.tabuleiro[partida.fantasmaC.linha][partida.fantasmaC.coluna] = ' ';
+                }
+                partida.fantasmaC.coluna++;
+                partida.fantasmaC.direcao = 0;
+            }
         }
     }
 
@@ -396,7 +488,7 @@ tPartida MovimentaPacMan(tPartida partida){
         }
         else if(EhComida(partida.mapa.tabuleiro[partida.pacman.linha][partida.pacman.coluna-1])){
             partida.mapa.tabuleiro[partida.pacman.linha][partida.pacman.coluna-1] = '>';
-            partida.mapa.comida[partida.pacman.linha-1][partida.pacman.coluna-1] = ' ';
+            partida.mapa.comida[partida.pacman.linha][partida.pacman.coluna-1] = ' ';
             if(EhFantasma(partida.mapa.tabuleiro[partida.pacman.linha][partida.pacman.coluna]) == 0){
                 partida.mapa.tabuleiro[partida.pacman.linha][partida.pacman.coluna] = ' ';
             }
