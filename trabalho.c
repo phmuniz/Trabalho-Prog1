@@ -41,13 +41,19 @@ typedef struct
 tMapa LeMapa(){
     tMapa mapa;
 
+    FILE * board = fopen("mapa.txt","r");
+
+    if (board == NULL){
+        printf("ERRO: O diretorio de arquivos de configuracao nao foi informado");
+    }
+
     //ENTRADAS SERÃO POR ARQUIVO
-    scanf("%d %d %d\n", &mapa.linha, &mapa.coluna, &mapa.qtd_movimentos);
+    fscanf(board, "%d %d %d\n", &mapa.linha, &mapa.coluna, &mapa.qtd_movimentos);
 
     int i, j;
     for(i=0; i<mapa.linha; i++){
         for(j=0; j<mapa.coluna; j++){
-            scanf("%c", &mapa.tabuleiro[i][j]);
+            fscanf(board, "%c", &mapa.tabuleiro[i][j]);
 
             if(mapa.tabuleiro[i][j] == '*'){
                 mapa.comida[i][j] = '*';
@@ -55,8 +61,10 @@ tMapa LeMapa(){
                 mapa.comida[i][j] = ' ';
             }
         }
-        scanf("\n");
+        fscanf(board, "%*c");
     }
+
+    fclose(board);
 
     return mapa;
 }
@@ -533,7 +541,8 @@ void RealizarJogo(tPartida partida){
     qtd_comida_inicial = RetornaQtdComida(partida.mapa);
 
     for(i=0; i<partida.mapa.qtd_movimentos; i++){
-        scanf("%c\n", &partida.jogada);
+        scanf("%c", &partida.jogada);
+        scanf("%*c");
 
         partida = MovimentaFantasma(partida);
         if(partida.bateuFantasma == 0){
