@@ -38,22 +38,25 @@ typedef struct
 }tPartida;
 
 //Funcao para ler as entradas dadas em mapa.txt
-tMapa LeMapa(){
+tMapa LeMapa(char * argv[]){
     tMapa mapa;
+    char caminho[1000];
 
-    FILE * board = fopen("mapa.txt","r");
+    sprintf(caminho,"%s/mapa.txt",argv[1]);
 
-    if (board == NULL){
+    FILE * entrada = fopen(caminho,"r");
+
+    if (entrada == NULL){
         printf("ERRO: O diretorio de arquivos de configuracao nao foi informado");
     }
 
     //ENTRADAS SERÃO POR ARQUIVO
-    fscanf(board, "%d %d %d\n", &mapa.linha, &mapa.coluna, &mapa.qtd_movimentos);
+    fscanf(entrada, "%d %d %d\n", &mapa.linha, &mapa.coluna, &mapa.qtd_movimentos);
 
     int i, j;
     for(i=0; i<mapa.linha; i++){
         for(j=0; j<mapa.coluna; j++){
-            fscanf(board, "%c", &mapa.tabuleiro[i][j]);
+            fscanf(entrada, "%c", &mapa.tabuleiro[i][j]);
 
             if(mapa.tabuleiro[i][j] == '*'){
                 mapa.comida[i][j] = '*';
@@ -61,10 +64,10 @@ tMapa LeMapa(){
                 mapa.comida[i][j] = ' ';
             }
         }
-        fscanf(board, "%*c");
+        fscanf(entrada, "%*c");
     }
 
-    fclose(board);
+    fclose(entrada);
 
     return mapa;
 }
@@ -135,10 +138,10 @@ void GeraInicializacao(tPacMan pacman, tMapa mapa){
     pacman.coluna+1);
 }
 
-tPartida InicializarJogo(){
+tPartida InicializarJogo(char * argv[]){
     tPartida partida;
 
-    partida.mapa = LeMapa();
+    partida.mapa = LeMapa(argv);
     partida.pacman = InicializaPacMan(partida.mapa);
     partida.fantasmaB = InicializaFantasma(partida.mapa, 'B');
     partida.fantasmaP = InicializaFantasma(partida.mapa, 'P');
@@ -568,10 +571,10 @@ void RealizarJogo(tPartida partida){
     }
 }
 
-int main(){
+int main(int argc, char * argv[]){
     tPartida partida;
 
-    partida = InicializarJogo();
+    partida = InicializarJogo(argv);
 
     RealizarJogo(partida);
 
