@@ -132,10 +132,25 @@ tFantasma InicializaFantasma(tMapa mapa, char tipo){
     return fantasma;
 }
 
-void GeraInicializacao(tPacMan pacman, tMapa mapa){
-    ImprimeMapa(mapa);
-    printf("Pac-Man comecara o jogo na linha %d e coluna %d\n", pacman.linha+1, 
+void GeraInicializacao(tPacMan pacman, tMapa mapa, char * argv[]){
+    char caminho[1000];
+
+    sprintf(caminho,"%s/saida/inicializacao.txt",argv[1]);
+
+    FILE * inicializacao = fopen(caminho,"w");
+    
+    int i, j;
+    for(i=0; i<mapa.linha; i++){
+        for(j=0; j<mapa.coluna; j++){
+            fprintf(inicializacao, "%c", mapa.tabuleiro[i][j]);
+        }
+        fprintf(inicializacao, "\n");
+    }
+
+    fprintf(inicializacao, "Pac-Man comecara o jogo na linha %d e coluna %d\n", pacman.linha+1, 
     pacman.coluna+1);
+
+    fclose(inicializacao);
 }
 
 tPartida InicializarJogo(char * argv[]){
@@ -150,7 +165,7 @@ tPartida InicializarJogo(char * argv[]){
     partida.bateuFantasma = 0;
 
     //Gerar inicializacao.txt
-    //GeraInicializacao(partida.pacman, partida.mapa);
+    GeraInicializacao(partida.pacman, partida.mapa, argv);
 
     return partida;
 }
