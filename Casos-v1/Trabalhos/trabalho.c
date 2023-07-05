@@ -452,6 +452,11 @@ tPartida MovimentaPacMan(tPartida partida){
             }
             partida.bateuFantasma = 1;
         }
+        else if(partida.mapa.tabuleiro[partida.pacman.linha-1][partida.pacman.coluna] == '#'){
+            if(EhFantasma(partida.mapa.tabuleiro[partida.pacman.linha][partida.pacman.coluna])){
+                partida.bateuFantasma = 1;
+            }
+        }
         break;
 
     case 's':
@@ -476,6 +481,11 @@ tPartida MovimentaPacMan(tPartida partida){
                 partida.mapa.tabuleiro[partida.pacman.linha][partida.pacman.coluna] = ' ';
             }
             partida.bateuFantasma = 1;
+        }
+        else if(partida.mapa.tabuleiro[partida.pacman.linha+1][partida.pacman.coluna] == '#'){
+            if(EhFantasma(partida.mapa.tabuleiro[partida.pacman.linha][partida.pacman.coluna])){
+                partida.bateuFantasma = 1;
+            }
         }
         break;
 
@@ -502,6 +512,11 @@ tPartida MovimentaPacMan(tPartida partida){
             }
             partida.bateuFantasma = 1;
         }
+        else if(partida.mapa.tabuleiro[partida.pacman.linha][partida.pacman.coluna+1] == '#'){
+            if(EhFantasma(partida.mapa.tabuleiro[partida.pacman.linha][partida.pacman.coluna])){
+                partida.bateuFantasma = 1;
+            }
+        }
         break;
 
     case 'a':
@@ -526,6 +541,11 @@ tPartida MovimentaPacMan(tPartida partida){
                 partida.mapa.tabuleiro[partida.pacman.linha][partida.pacman.coluna] = ' ';
             }
             partida.bateuFantasma = 1;
+        }
+        else if(partida.mapa.tabuleiro[partida.pacman.linha][partida.pacman.coluna-1] == '#'){
+            if(EhFantasma(partida.mapa.tabuleiro[partida.pacman.linha][partida.pacman.coluna])){
+                partida.bateuFantasma = 1;
+            }
         }
         break;
     
