@@ -312,7 +312,7 @@ tPartida MovimentaFantasma(tPartida partida){
             if(EhComida(partida.mapa.tabuleiro[partida.fantasmaI.linha+1][partida.fantasmaI.coluna]) || 
             EhPacMan(partida.mapa.tabuleiro[partida.fantasmaI.linha+1][partida.fantasmaI.coluna]) || 
             partida.mapa.tabuleiro[partida.fantasmaI.linha+1][partida.fantasmaI.coluna] == ' '){
-                if(EhPacMan(partida.mapa.tabuleiro[partida.fantasmaI.linha+1][partida.fantasmaI.coluna]) && partida.jogada == 'd'){
+                if(EhPacMan(partida.mapa.tabuleiro[partida.fantasmaI.linha+1][partida.fantasmaI.coluna]) && partida.jogada == 'w'){
                     partida.bateuFantasma = 1;
                 }
                 partida.mapa.tabuleiro[partida.fantasmaI.linha+1][partida.fantasmaI.coluna] = 'I';
@@ -339,7 +339,7 @@ tPartida MovimentaFantasma(tPartida partida){
             if(EhComida(partida.mapa.tabuleiro[partida.fantasmaI.linha-1][partida.fantasmaI.coluna]) || 
             EhPacMan(partida.mapa.tabuleiro[partida.fantasmaI.linha-1][partida.fantasmaI.coluna]) || 
             partida.mapa.tabuleiro[partida.fantasmaI.linha-1][partida.fantasmaI.coluna] == ' '){
-                if(EhPacMan(partida.mapa.tabuleiro[partida.fantasmaI.linha-1][partida.fantasmaI.coluna]) && partida.jogada == 'd'){
+                if(EhPacMan(partida.mapa.tabuleiro[partida.fantasmaI.linha-1][partida.fantasmaI.coluna]) && partida.jogada == 's'){
                     partida.bateuFantasma = 1;
                 }
                 partida.mapa.tabuleiro[partida.fantasmaI.linha-1][partida.fantasmaI.coluna] = 'I';
@@ -370,7 +370,7 @@ tPartida MovimentaFantasma(tPartida partida){
             if(EhComida(partida.mapa.tabuleiro[partida.fantasmaC.linha][partida.fantasmaC.coluna+1]) || 
             EhPacMan(partida.mapa.tabuleiro[partida.fantasmaC.linha][partida.fantasmaC.coluna+1]) || 
             partida.mapa.tabuleiro[partida.fantasmaC.linha][partida.fantasmaC.coluna+1] == ' '){
-                if(EhPacMan(partida.mapa.tabuleiro[partida.fantasmaC.linha][partida.fantasmaC.coluna+1]) && partida.jogada == 'd'){
+                if(EhPacMan(partida.mapa.tabuleiro[partida.fantasmaC.linha][partida.fantasmaC.coluna+1]) && partida.jogada == 'a'){
                     partida.bateuFantasma = 1;
                 }
                 partida.mapa.tabuleiro[partida.fantasmaC.linha][partida.fantasmaC.coluna+1] = 'C';
