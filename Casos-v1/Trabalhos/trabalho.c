@@ -94,6 +94,7 @@ int EhPacMan(char peca){
     return peca == '>';
 }
 
+//Verifica se determinada peça é um Fantasma
 int EhFantasma(char peca){
     return peca == 'B' || peca == 'P' || peca == 'I' || peca == 'C';
 }
@@ -176,7 +177,7 @@ tPartida InicializarJogo(char * argv[]){
     partida.qtdMovimentoD = 0;
     partida.qtdMovimentoA = 0;
     
-    //Inicializa Trilha
+    //Inicializa Trilha com todas as posições como -1, exceto posição inicial do pacman (0)
     int i, j;
     for(i=0; i<partida.mapa.linha; i++){
         for(j=0; j<partida.mapa.coluna; j++){
@@ -211,19 +212,27 @@ int RetornaQtdComida(tMapa mapa){
 }
 
 tPartida MovimentaFantasma(tPartida partida){
+    //OBS.: TODAS AS VERIFICAÇÕES COMENTADAS DETALHADAMENTE NO FANTASMA B SÃO REPETIDAS PARA CADA UM DOS FANTASMAS!!
 
     //Verifica se o Fantasma B existe, se existe movimenta ele
     if(partida.fantasmaB.existe){
 
+        //Movimenta o Fantasma B de acordo com sua direção inicial
         if(partida.fantasmaB.direcao == 0){
+
+            //Verifica se a posição para a qual o fantasma está indo é comida ou pacman ou espaco
             if(EhComida(partida.mapa.tabuleiro[partida.fantasmaB.linha][partida.fantasmaB.coluna-1]) || 
             EhPacMan(partida.mapa.tabuleiro[partida.fantasmaB.linha][partida.fantasmaB.coluna-1]) || 
             partida.mapa.tabuleiro[partida.fantasmaB.linha][partida.fantasmaB.coluna-1] == ' '){
+
+                //Se for o pacman, verifica se ele está vindo de encontro
                 if(EhPacMan(partida.mapa.tabuleiro[partida.fantasmaB.linha][partida.fantasmaB.coluna-1]) && partida.jogada == 'd'){
                     partida.bateuFantasma = 1;
                     partida.qtdMovimentoD++;
                 }
                 partida.mapa.tabuleiro[partida.fantasmaB.linha][partida.fantasmaB.coluna-1] = 'B';
+
+                //Verifica se o fantasma estava em cima de uma comida
                 if(EhComida(partida.mapa.comida[partida.fantasmaB.linha][partida.fantasmaB.coluna])){
                     partida.mapa.tabuleiro[partida.fantasmaB.linha][partida.fantasmaB.coluna] = '*';
                 }else{
@@ -231,18 +240,23 @@ tPartida MovimentaFantasma(tPartida partida){
                 }
                 partida.fantasmaB.coluna--;
             }
+
+            //Verifica se a posição para a qual o fantasma está indo é uma parede
             else if(partida.mapa.tabuleiro[partida.fantasmaB.linha][partida.fantasmaB.coluna-1] == '#'){
                 partida.mapa.tabuleiro[partida.fantasmaB.linha][partida.fantasmaB.coluna+1] = 'B';
+
+                //Verifica se o fantasma estava em cima de uma comida
                 if(EhComida(partida.mapa.comida[partida.fantasmaB.linha][partida.fantasmaB.coluna])){
                     partida.mapa.tabuleiro[partida.fantasmaB.linha][partida.fantasmaB.coluna] = '*';
                 }else{
                     partida.mapa.tabuleiro[partida.fantasmaB.linha][partida.fantasmaB.coluna] = ' ';
                 }
                 partida.fantasmaB.coluna++;
-                partida.fantasmaB.direcao = 1;
+                partida.fantasmaB.direcao = 1; // muda a direcao do fantasma
             }
         }
 
+        //Movimenta o Fantasma B de acordo com sua direção contrária
         else if(partida.fantasmaB.direcao){
             if(EhComida(partida.mapa.tabuleiro[partida.fantasmaB.linha][partida.fantasmaB.coluna+1]) || 
             EhPacMan(partida.mapa.tabuleiro[partida.fantasmaB.linha][partida.fantasmaB.coluna+1]) || 
@@ -680,13 +694,18 @@ void RealizarJogo(tPartida partida, char * argv[]){
         scanf("%*c");
 
         partida = MovimentaFantasma(partida);
+
+        //Se o pacman não morreu, movimenta ele
         if(partida.bateuFantasma == 0){
             partida = MovimentaPacMan(partida);
-            partida.trilha[partida.pacman.linha][partida.pacman.coluna] = i+1;
+
+            //se o pacman ainda não morreu após ele se movimentar, atualiza trilha
+            if(!partida.bateuFantasma) partida.trilha[partida.pacman.linha][partida.pacman.coluna] = i+1;
         }
         
         ImprimeEstadoAtual(partida.mapa, partida.jogada, partida.pacman.pontos);
 
+        //Atualiza o resumo
         if(partida.pegouComida){
             fprintf(resumo, "Movimento %d (%c) pegou comida\n", i+1, partida.jogada);
             partida.pegouComida = 0;
@@ -699,25 +718,31 @@ void RealizarJogo(tPartida partida, char * argv[]){
             partida.colidiuParede = 0;
             qtd_colisoes_parede++;
         }
+
+        //Se ganhou, para de ler as jogadas
         if(qtd_comida_inicial == partida.pacman.pontos){
             break;
         }
+        //Se perdeu por bater no fantasma, para de ler as jogadas
         if(partida.bateuFantasma){
             break;
         }
     }
 
+    //Define a quantidade de movimentos realizados no jogo
     if(i == partida.mapa.qtd_movimentos){
         qtd_movimentos = i;
     }else{
         qtd_movimentos = i+1;
     }
 
-    fclose(resumo);
+    fclose(resumo); 
 
+    //Gera arquivos
     GeraEstatisticas(argv, partida, qtd_colisoes_parede, qtd_movimentos);
     GeraTrilha(argv, partida);
 
+    //Verifica o resultado final
     if(qtd_comida_inicial == partida.pacman.pontos){
         ImprimeVitoria(partida.pacman.pontos);
     }else{
