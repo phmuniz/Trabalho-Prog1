@@ -35,12 +35,13 @@ typedef struct
     tFantasma fantasmaC;
     char jogada;
     int bateuFantasma; // 0 se não bateu, 1 se bateu
-    int colidiuParede;
-    int pegouComida;
+    int colidiuParede; // 0 se não colidiu, 1 se colidiu 
+    int pegouComida; // 0 se não pegou, 1 se pegou
     int qtdMovimentoW;
     int qtdMovimentoS;
     int qtdMovimentoD;
     int qtdMovimentoA;
+    int trilha[40][100];
 }tPartida;
 
 //Funcao para ler as entradas dadas em mapa.txt
@@ -56,7 +57,6 @@ tMapa LeMapa(char * argv[]){
         printf("ERRO: O diretorio de arquivos de configuracao nao foi informado");
     }
 
-    //ENTRADAS SERÃO POR ARQUIVO
     fscanf(entrada, "%d %d %d\n", &mapa.linha, &mapa.coluna, &mapa.qtd_movimentos);
 
     int i, j;
@@ -175,6 +175,17 @@ tPartida InicializarJogo(char * argv[]){
     partida.qtdMovimentoS = 0;
     partida.qtdMovimentoD = 0;
     partida.qtdMovimentoA = 0;
+    
+    //Inicializa Trilha
+    int i, j;
+    for(i=0; i<partida.mapa.linha; i++){
+        for(j=0; j<partida.mapa.coluna; j++){
+            partida.trilha[i][j] = -1;
+            if(partida.pacman.linha == i && partida.pacman.coluna == j){
+                partida.trilha[i][j] = 0;
+            }
+        }
+    }
 
     //Gerar inicializacao.txt
     GeraInicializacao(partida.pacman, partida.mapa, argv);
@@ -210,6 +221,7 @@ tPartida MovimentaFantasma(tPartida partida){
             partida.mapa.tabuleiro[partida.fantasmaB.linha][partida.fantasmaB.coluna-1] == ' '){
                 if(EhPacMan(partida.mapa.tabuleiro[partida.fantasmaB.linha][partida.fantasmaB.coluna-1]) && partida.jogada == 'd'){
                     partida.bateuFantasma = 1;
+                    partida.qtdMovimentoD++;
                 }
                 partida.mapa.tabuleiro[partida.fantasmaB.linha][partida.fantasmaB.coluna-1] = 'B';
                 if(EhComida(partida.mapa.comida[partida.fantasmaB.linha][partida.fantasmaB.coluna])){
@@ -237,6 +249,7 @@ tPartida MovimentaFantasma(tPartida partida){
             partida.mapa.tabuleiro[partida.fantasmaB.linha][partida.fantasmaB.coluna+1] == ' '){
                 if(EhPacMan(partida.mapa.tabuleiro[partida.fantasmaB.linha][partida.fantasmaB.coluna+1]) && partida.jogada == 'a'){
                     partida.bateuFantasma = 1;
+                    partida.qtdMovimentoA++;
                 }
                 partida.mapa.tabuleiro[partida.fantasmaB.linha][partida.fantasmaB.coluna+1] = 'B';
                 if(EhComida(partida.mapa.comida[partida.fantasmaB.linha][partida.fantasmaB.coluna])){
@@ -268,6 +281,7 @@ tPartida MovimentaFantasma(tPartida partida){
             partida.mapa.tabuleiro[partida.fantasmaP.linha-1][partida.fantasmaP.coluna] == ' '){
                 if(EhPacMan(partida.mapa.tabuleiro[partida.fantasmaP.linha-1][partida.fantasmaP.coluna]) && partida.jogada == 's'){
                     partida.bateuFantasma = 1;
+                    partida.qtdMovimentoS++;
                 }
                 partida.mapa.tabuleiro[partida.fantasmaP.linha-1][partida.fantasmaP.coluna] = 'P';
                 if(EhComida(partida.mapa.comida[partida.fantasmaP.linha][partida.fantasmaP.coluna])){
@@ -295,6 +309,7 @@ tPartida MovimentaFantasma(tPartida partida){
             partida.mapa.tabuleiro[partida.fantasmaP.linha+1][partida.fantasmaP.coluna] == ' '){
                 if(EhPacMan(partida.mapa.tabuleiro[partida.fantasmaP.linha+1][partida.fantasmaP.coluna]) && partida.jogada == 'w'){
                     partida.bateuFantasma = 1;
+                    partida.qtdMovimentoW++;
                 }
                 partida.mapa.tabuleiro[partida.fantasmaP.linha+1][partida.fantasmaP.coluna] = 'P';
                 if(EhComida(partida.mapa.comida[partida.fantasmaP.linha][partida.fantasmaP.coluna])){
@@ -326,6 +341,7 @@ tPartida MovimentaFantasma(tPartida partida){
             partida.mapa.tabuleiro[partida.fantasmaI.linha+1][partida.fantasmaI.coluna] == ' '){
                 if(EhPacMan(partida.mapa.tabuleiro[partida.fantasmaI.linha+1][partida.fantasmaI.coluna]) && partida.jogada == 'w'){
                     partida.bateuFantasma = 1;
+                    partida.qtdMovimentoW++;
                 }
                 partida.mapa.tabuleiro[partida.fantasmaI.linha+1][partida.fantasmaI.coluna] = 'I';
                 if(EhComida(partida.mapa.comida[partida.fantasmaI.linha][partida.fantasmaI.coluna])){
@@ -353,6 +369,7 @@ tPartida MovimentaFantasma(tPartida partida){
             partida.mapa.tabuleiro[partida.fantasmaI.linha-1][partida.fantasmaI.coluna] == ' '){
                 if(EhPacMan(partida.mapa.tabuleiro[partida.fantasmaI.linha-1][partida.fantasmaI.coluna]) && partida.jogada == 's'){
                     partida.bateuFantasma = 1;
+                    partida.qtdMovimentoS++;
                 }
                 partida.mapa.tabuleiro[partida.fantasmaI.linha-1][partida.fantasmaI.coluna] = 'I';
                 if(EhComida(partida.mapa.comida[partida.fantasmaI.linha][partida.fantasmaI.coluna])){
@@ -384,6 +401,7 @@ tPartida MovimentaFantasma(tPartida partida){
             partida.mapa.tabuleiro[partida.fantasmaC.linha][partida.fantasmaC.coluna+1] == ' '){
                 if(EhPacMan(partida.mapa.tabuleiro[partida.fantasmaC.linha][partida.fantasmaC.coluna+1]) && partida.jogada == 'a'){
                     partida.bateuFantasma = 1;
+                    partida.qtdMovimentoA++;
                 }
                 partida.mapa.tabuleiro[partida.fantasmaC.linha][partida.fantasmaC.coluna+1] = 'C';
                 if(EhComida(partida.mapa.comida[partida.fantasmaC.linha][partida.fantasmaC.coluna])){
@@ -411,6 +429,7 @@ tPartida MovimentaFantasma(tPartida partida){
             partida.mapa.tabuleiro[partida.fantasmaC.linha][partida.fantasmaC.coluna-1] == ' '){
                 if(EhPacMan(partida.mapa.tabuleiro[partida.fantasmaC.linha][partida.fantasmaC.coluna-1]) && partida.jogada == 'd'){
                     partida.bateuFantasma = 1;
+                    partida.qtdMovimentoD++;
                 }
                 partida.mapa.tabuleiro[partida.fantasmaC.linha][partida.fantasmaC.coluna-1] = 'C';
                 if(EhComida(partida.mapa.comida[partida.fantasmaC.linha][partida.fantasmaC.coluna])){
@@ -619,6 +638,32 @@ void GeraEstatisticas(char * argv[], tPartida partida, int qtd_colisoes_parede, 
     fclose(estatisticas);
 }
 
+void GeraTrilha(char * argv[], tPartida partida){
+    char caminho[1000];
+
+    sprintf(caminho,"%s/saida/trilha.txt",argv[1]);
+
+    FILE * trilha = fopen(caminho,"w");
+
+    int i, j;
+    for(i=0; i<partida.mapa.linha; i++){
+        for(j=0; j<partida.mapa.coluna; j++){
+            if(partida.trilha[i][j] == -1){
+                fprintf(trilha, "#");
+            }
+            else{
+                fprintf(trilha, "%d", partida.trilha[i][j]);
+            }
+            if(j < (partida.mapa.coluna - 1)){
+                fprintf(trilha, " ");
+            }
+        }
+        fprintf(trilha, "\n");
+    }
+
+    fclose(trilha);
+}
+
 void RealizarJogo(tPartida partida, char * argv[]){
     char caminho[1000];
 
@@ -637,6 +682,7 @@ void RealizarJogo(tPartida partida, char * argv[]){
         partida = MovimentaFantasma(partida);
         if(partida.bateuFantasma == 0){
             partida = MovimentaPacMan(partida);
+            partida.trilha[partida.pacman.linha][partida.pacman.coluna] = i+1;
         }
         
         ImprimeEstadoAtual(partida.mapa, partida.jogada, partida.pacman.pontos);
@@ -668,7 +714,10 @@ void RealizarJogo(tPartida partida, char * argv[]){
     }
 
     fclose(resumo);
+
     GeraEstatisticas(argv, partida, qtd_colisoes_parede, qtd_movimentos);
+    GeraTrilha(argv, partida);
+
     if(qtd_comida_inicial == partida.pacman.pontos){
         ImprimeVitoria(partida.pacman.pontos);
     }else{
