@@ -27,6 +27,33 @@ typedef struct
 
 typedef struct 
 {
+    int qtdMovimentoW;
+    int qtdMovimentoS;
+    int qtdMovimentoD;
+    int qtdMovimentoA;
+    int qtdColisoesParede;
+    int qtdMovimentos;
+}tEstatisticas;
+
+typedef struct 
+{
+    int qtdMovimento;
+    int qtdPegouComida;
+    int qtdColisoesParede;
+}tMovimento;
+
+
+typedef struct 
+{
+    tMovimento movimentoW;
+    tMovimento movimentoS;
+    tMovimento movimentoD;
+    tMovimento movimentoA;
+}tRanking;
+
+
+typedef struct 
+{
     tMapa mapa;
     tPacMan pacman;
     tFantasma fantasmaB;
@@ -37,10 +64,8 @@ typedef struct
     int bateuFantasma; // 0 se não bateu, 1 se bateu
     int colidiuParede; // 0 se não colidiu, 1 se colidiu 
     int pegouComida; // 0 se não pegou, 1 se pegou
-    int qtdMovimentoW;
-    int qtdMovimentoS;
-    int qtdMovimentoD;
-    int qtdMovimentoA;
+    tEstatisticas estatisticas;
+    tRanking ranking;
     int trilha[40][100];
 }tPartida;
 
@@ -139,6 +164,35 @@ tFantasma InicializaFantasma(tMapa mapa, char tipo){
     return fantasma;
 }
 
+tEstatisticas InicializaEstatisticas(tEstatisticas estatisticas){
+    estatisticas.qtdMovimentoW = 0;
+    estatisticas.qtdMovimentoS = 0;
+    estatisticas.qtdMovimentoD = 0;
+    estatisticas.qtdMovimentoA = 0;
+    estatisticas.qtdColisoesParede = 0;
+    estatisticas.qtdMovimentos = 0;
+
+    return estatisticas;
+}
+
+tMovimento InicializaMovimento(tMovimento movimento){
+    movimento.qtdMovimento = 0;
+    movimento.qtdPegouComida = 0;
+    movimento.qtdColisoesParede = 0;
+
+    return movimento;
+}
+
+tRanking InicializaRanking(tRanking ranking){
+    ranking.movimentoW = InicializaMovimento(ranking.movimentoW);
+    ranking.movimentoS = InicializaMovimento(ranking.movimentoS);
+    ranking.movimentoD = InicializaMovimento(ranking.movimentoD);
+    ranking.movimentoA = InicializaMovimento(ranking.movimentoA);
+    
+
+    return ranking;
+}
+
 void GeraInicializacao(tPacMan pacman, tMapa mapa, char * argv[]){
     char caminho[1000];
 
@@ -172,10 +226,8 @@ tPartida InicializarJogo(char * argv[]){
     partida.bateuFantasma = 0;
     partida.colidiuParede = 0;
     partida.pegouComida = 0;
-    partida.qtdMovimentoW = 0;
-    partida.qtdMovimentoS = 0;
-    partida.qtdMovimentoD = 0;
-    partida.qtdMovimentoA = 0;
+    partida.estatisticas = InicializaEstatisticas(partida.estatisticas);
+    partida.ranking = InicializaRanking(partida.ranking);
     
     //Inicializa Trilha com todas as posições como -1, exceto posição inicial do pacman (0)
     int i, j;
@@ -228,7 +280,7 @@ tPartida MovimentaFantasma(tPartida partida){
                 //Se for o pacman, verifica se ele está vindo de encontro
                 if(EhPacMan(partida.mapa.tabuleiro[partida.fantasmaB.linha][partida.fantasmaB.coluna-1]) && partida.jogada == 'd'){
                     partida.bateuFantasma = 1;
-                    partida.qtdMovimentoD++;
+                    partida.estatisticas.qtdMovimentoD++;
                 }
                 partida.mapa.tabuleiro[partida.fantasmaB.linha][partida.fantasmaB.coluna-1] = 'B';
 
@@ -263,7 +315,7 @@ tPartida MovimentaFantasma(tPartida partida){
             partida.mapa.tabuleiro[partida.fantasmaB.linha][partida.fantasmaB.coluna+1] == ' '){
                 if(EhPacMan(partida.mapa.tabuleiro[partida.fantasmaB.linha][partida.fantasmaB.coluna+1]) && partida.jogada == 'a'){
                     partida.bateuFantasma = 1;
-                    partida.qtdMovimentoA++;
+                    partida.estatisticas.qtdMovimentoA++;
                 }
                 partida.mapa.tabuleiro[partida.fantasmaB.linha][partida.fantasmaB.coluna+1] = 'B';
                 if(EhComida(partida.mapa.comida[partida.fantasmaB.linha][partida.fantasmaB.coluna])){
@@ -295,7 +347,7 @@ tPartida MovimentaFantasma(tPartida partida){
             partida.mapa.tabuleiro[partida.fantasmaP.linha-1][partida.fantasmaP.coluna] == ' '){
                 if(EhPacMan(partida.mapa.tabuleiro[partida.fantasmaP.linha-1][partida.fantasmaP.coluna]) && partida.jogada == 's'){
                     partida.bateuFantasma = 1;
-                    partida.qtdMovimentoS++;
+                    partida.estatisticas.qtdMovimentoS++;
                 }
                 partida.mapa.tabuleiro[partida.fantasmaP.linha-1][partida.fantasmaP.coluna] = 'P';
                 if(EhComida(partida.mapa.comida[partida.fantasmaP.linha][partida.fantasmaP.coluna])){
@@ -323,7 +375,7 @@ tPartida MovimentaFantasma(tPartida partida){
             partida.mapa.tabuleiro[partida.fantasmaP.linha+1][partida.fantasmaP.coluna] == ' '){
                 if(EhPacMan(partida.mapa.tabuleiro[partida.fantasmaP.linha+1][partida.fantasmaP.coluna]) && partida.jogada == 'w'){
                     partida.bateuFantasma = 1;
-                    partida.qtdMovimentoW++;
+                    partida.estatisticas.qtdMovimentoW++;
                 }
                 partida.mapa.tabuleiro[partida.fantasmaP.linha+1][partida.fantasmaP.coluna] = 'P';
                 if(EhComida(partida.mapa.comida[partida.fantasmaP.linha][partida.fantasmaP.coluna])){
@@ -355,7 +407,7 @@ tPartida MovimentaFantasma(tPartida partida){
             partida.mapa.tabuleiro[partida.fantasmaI.linha+1][partida.fantasmaI.coluna] == ' '){
                 if(EhPacMan(partida.mapa.tabuleiro[partida.fantasmaI.linha+1][partida.fantasmaI.coluna]) && partida.jogada == 'w'){
                     partida.bateuFantasma = 1;
-                    partida.qtdMovimentoW++;
+                    partida.estatisticas.qtdMovimentoW++;
                 }
                 partida.mapa.tabuleiro[partida.fantasmaI.linha+1][partida.fantasmaI.coluna] = 'I';
                 if(EhComida(partida.mapa.comida[partida.fantasmaI.linha][partida.fantasmaI.coluna])){
@@ -383,7 +435,7 @@ tPartida MovimentaFantasma(tPartida partida){
             partida.mapa.tabuleiro[partida.fantasmaI.linha-1][partida.fantasmaI.coluna] == ' '){
                 if(EhPacMan(partida.mapa.tabuleiro[partida.fantasmaI.linha-1][partida.fantasmaI.coluna]) && partida.jogada == 's'){
                     partida.bateuFantasma = 1;
-                    partida.qtdMovimentoS++;
+                    partida.estatisticas.qtdMovimentoS++;
                 }
                 partida.mapa.tabuleiro[partida.fantasmaI.linha-1][partida.fantasmaI.coluna] = 'I';
                 if(EhComida(partida.mapa.comida[partida.fantasmaI.linha][partida.fantasmaI.coluna])){
@@ -415,7 +467,7 @@ tPartida MovimentaFantasma(tPartida partida){
             partida.mapa.tabuleiro[partida.fantasmaC.linha][partida.fantasmaC.coluna+1] == ' '){
                 if(EhPacMan(partida.mapa.tabuleiro[partida.fantasmaC.linha][partida.fantasmaC.coluna+1]) && partida.jogada == 'a'){
                     partida.bateuFantasma = 1;
-                    partida.qtdMovimentoA++;
+                    partida.estatisticas.qtdMovimentoA++;
                 }
                 partida.mapa.tabuleiro[partida.fantasmaC.linha][partida.fantasmaC.coluna+1] = 'C';
                 if(EhComida(partida.mapa.comida[partida.fantasmaC.linha][partida.fantasmaC.coluna])){
@@ -443,7 +495,7 @@ tPartida MovimentaFantasma(tPartida partida){
             partida.mapa.tabuleiro[partida.fantasmaC.linha][partida.fantasmaC.coluna-1] == ' '){
                 if(EhPacMan(partida.mapa.tabuleiro[partida.fantasmaC.linha][partida.fantasmaC.coluna-1]) && partida.jogada == 'd'){
                     partida.bateuFantasma = 1;
-                    partida.qtdMovimentoD++;
+                    partida.estatisticas.qtdMovimentoD++;
                 }
                 partida.mapa.tabuleiro[partida.fantasmaC.linha][partida.fantasmaC.coluna-1] = 'C';
                 if(EhComida(partida.mapa.comida[partida.fantasmaC.linha][partida.fantasmaC.coluna])){
@@ -475,7 +527,7 @@ tPartida MovimentaPacMan(tPartida partida){
     {
 
     case 'w':
-        partida.qtdMovimentoW++;
+        partida.estatisticas.qtdMovimentoW++;
 
         if(partida.mapa.tabuleiro[partida.pacman.linha-1][partida.pacman.coluna] == ' '){
             partida.mapa.tabuleiro[partida.pacman.linha-1][partida.pacman.coluna] = '>';
@@ -493,6 +545,7 @@ tPartida MovimentaPacMan(tPartida partida){
             partida.pacman.linha--;
             partida.pacman.pontos++;
             partida.pegouComida = 1;
+            partida.ranking.movimentoW.qtdPegouComida++;
         }
         else if(EhFantasma(partida.mapa.tabuleiro[partida.pacman.linha-1][partida.pacman.coluna])){
             if(EhFantasma(partida.mapa.tabuleiro[partida.pacman.linha][partida.pacman.coluna]) == 0){
@@ -505,11 +558,12 @@ tPartida MovimentaPacMan(tPartida partida){
                 partida.bateuFantasma = 1;
             }
             partida.colidiuParede = 1;
+            partida.ranking.movimentoW.qtdColisoesParede++;
         }
         break;
 
     case 's':
-        partida.qtdMovimentoS++;
+        partida.estatisticas.qtdMovimentoS++;
 
         if(partida.mapa.tabuleiro[partida.pacman.linha+1][partida.pacman.coluna] == ' '){
             partida.mapa.tabuleiro[partida.pacman.linha+1][partida.pacman.coluna] = '>';
@@ -527,6 +581,7 @@ tPartida MovimentaPacMan(tPartida partida){
             partida.pacman.linha++;
             partida.pacman.pontos++;
             partida.pegouComida = 1;
+            partida.ranking.movimentoS.qtdPegouComida++;
         }
         else if(EhFantasma(partida.mapa.tabuleiro[partida.pacman.linha+1][partida.pacman.coluna])){
             if(EhFantasma(partida.mapa.tabuleiro[partida.pacman.linha][partida.pacman.coluna]) == 0){
@@ -539,11 +594,12 @@ tPartida MovimentaPacMan(tPartida partida){
                 partida.bateuFantasma = 1;
             }
             partida.colidiuParede = 1;
+            partida.ranking.movimentoS.qtdColisoesParede++;
         }
         break;
 
     case 'd':
-        partida.qtdMovimentoD++;
+        partida.estatisticas.qtdMovimentoD++;
 
         if(partida.mapa.tabuleiro[partida.pacman.linha][partida.pacman.coluna+1] == ' '){
             partida.mapa.tabuleiro[partida.pacman.linha][partida.pacman.coluna+1] = '>';
@@ -561,6 +617,7 @@ tPartida MovimentaPacMan(tPartida partida){
             partida.pacman.coluna++;
             partida.pacman.pontos++;
             partida.pegouComida = 1;
+            partida.ranking.movimentoD.qtdPegouComida++;
         }
         else if(EhFantasma(partida.mapa.tabuleiro[partida.pacman.linha][partida.pacman.coluna+1])){
             if(EhFantasma(partida.mapa.tabuleiro[partida.pacman.linha][partida.pacman.coluna]) == 0){
@@ -573,11 +630,12 @@ tPartida MovimentaPacMan(tPartida partida){
                 partida.bateuFantasma = 1;
             }
             partida.colidiuParede = 1;
+            partida.ranking.movimentoD.qtdColisoesParede++;
         }
         break;
 
     case 'a':
-        partida.qtdMovimentoA++;
+        partida.estatisticas.qtdMovimentoA++;
 
         if(partida.mapa.tabuleiro[partida.pacman.linha][partida.pacman.coluna-1] == ' '){
             partida.mapa.tabuleiro[partida.pacman.linha][partida.pacman.coluna-1] = '>';
@@ -595,6 +653,7 @@ tPartida MovimentaPacMan(tPartida partida){
             partida.pacman.coluna--;
             partida.pacman.pontos++;
             partida.pegouComida = 1;
+            partida.ranking.movimentoA.qtdPegouComida++;
         }
         else if(EhFantasma(partida.mapa.tabuleiro[partida.pacman.linha][partida.pacman.coluna-1])){
             if(EhFantasma(partida.mapa.tabuleiro[partida.pacman.linha][partida.pacman.coluna]) == 0){
@@ -607,6 +666,7 @@ tPartida MovimentaPacMan(tPartida partida){
                 partida.bateuFantasma = 1;
             }
             partida.colidiuParede = 1;
+            partida.ranking.movimentoA.qtdColisoesParede++;
         }
         break;
     
@@ -634,20 +694,20 @@ void ImprimeDerrota(int pontuacao){
     printf("Pontuacao final: %d\n", pontuacao);
 }
 
-void GeraEstatisticas(char * argv[], tPartida partida, int qtd_colisoes_parede, int qtd_movimentos){
+void GeraEstatisticas(char * argv[], tEstatisticas stats, int pontos){
     char caminho[1000];
 
     sprintf(caminho,"%s/saida/estatisticas.txt",argv[1]);
 
     FILE * estatisticas = fopen(caminho,"w");
 
-    fprintf(estatisticas, "Numero de movimentos: %d\n", qtd_movimentos);
-    fprintf(estatisticas, "Numero de movimentos sem pontuar: %d\n", (qtd_movimentos - partida.pacman.pontos));
-    fprintf(estatisticas, "Numero de colisoes com parede: %d\n", qtd_colisoes_parede);
-    fprintf(estatisticas, "Numero de movimentos para baixo: %d\n", partida.qtdMovimentoS);
-    fprintf(estatisticas, "Numero de movimentos para cima: %d\n", partida.qtdMovimentoW);
-    fprintf(estatisticas, "Numero de movimentos para esquerda: %d\n", partida.qtdMovimentoA);
-    fprintf(estatisticas, "Numero de movimentos para direita: %d\n", partida.qtdMovimentoD);
+    fprintf(estatisticas, "Numero de movimentos: %d\n", stats.qtdMovimentos);
+    fprintf(estatisticas, "Numero de movimentos sem pontuar: %d\n", (stats.qtdMovimentos - pontos));
+    fprintf(estatisticas, "Numero de colisoes com parede: %d\n", stats.qtdColisoesParede);
+    fprintf(estatisticas, "Numero de movimentos para baixo: %d\n", stats.qtdMovimentoS);
+    fprintf(estatisticas, "Numero de movimentos para cima: %d\n", stats.qtdMovimentoW);
+    fprintf(estatisticas, "Numero de movimentos para esquerda: %d\n", stats.qtdMovimentoA);
+    fprintf(estatisticas, "Numero de movimentos para direita: %d\n", stats.qtdMovimentoD);
 
     fclose(estatisticas);
 }
@@ -678,6 +738,46 @@ void GeraTrilha(char * argv[], tPartida partida){
     fclose(trilha);
 }
 
+int MelhorMovimento(tMovimento movimento1, tMovimento movimento2){
+
+}
+
+void GeraRanking(char * argv[], tRanking ranking, tEstatisticas estatisticas){
+
+    //Atribuindo qtd movimentos de cada tipo
+    ranking.movimentoW.qtdMovimento = estatisticas.qtdMovimentoW;
+    ranking.movimentoS.qtdMovimento = estatisticas.qtdMovimentoS;
+    ranking.movimentoD.qtdMovimento = estatisticas.qtdMovimentoD;
+    ranking.movimentoA.qtdMovimento = estatisticas.qtdMovimentoA;
+
+    tMovimento primeiro, segundo, terceiro, quarto;
+
+    if(MelhorMovimento(ranking.movimentoW, ranking.movimentoS) && MelhorMovimento(ranking.movimentoW, ranking.movimentoD)
+    && MelhorMovimento(ranking.movimentoW, ranking.movimentoA)){
+        primeiro = ranking.movimentoW;
+    }
+    else if(!MelhorMovimento(ranking.movimentoW, ranking.movimentoS) && MelhorMovimento(ranking.movimentoW, ranking.movimentoD)
+    && MelhorMovimento(ranking.movimentoW, ranking.movimentoA) ||
+    MelhorMovimento(ranking.movimentoW, ranking.movimentoS) && !MelhorMovimento(ranking.movimentoW, ranking.movimentoD)
+    && MelhorMovimento(ranking.movimentoW, ranking.movimentoA) ||
+    MelhorMovimento(ranking.movimentoW, ranking.movimentoS) && MelhorMovimento(ranking.movimentoW, ranking.movimentoD)
+    && !MelhorMovimento(ranking.movimentoW, ranking.movimentoA)){
+        segundo = ranking.movimentoW;
+    }
+    else if(!MelhorMovimento(ranking.movimentoW, ranking.movimentoS) && !MelhorMovimento(ranking.movimentoW, ranking.movimentoD)
+    && MelhorMovimento(ranking.movimentoW, ranking.movimentoA) ||
+    !MelhorMovimento(ranking.movimentoW, ranking.movimentoS) && MelhorMovimento(ranking.movimentoW, ranking.movimentoD)
+    && !MelhorMovimento(ranking.movimentoW, ranking.movimentoA) ||
+    MelhorMovimento(ranking.movimentoW, ranking.movimentoS) && !MelhorMovimento(ranking.movimentoW, ranking.movimentoD)
+    && !MelhorMovimento(ranking.movimentoW, ranking.movimentoA)){
+        terceiro = ranking.movimentoW;
+    }
+    else if(!MelhorMovimento(ranking.movimentoW, ranking.movimentoS) && !MelhorMovimento(ranking.movimentoW, ranking.movimentoD)
+    && !MelhorMovimento(ranking.movimentoW, ranking.movimentoA)){
+        quarto = ranking.movimentoW;
+    }
+}
+
 void RealizarJogo(tPartida partida, char * argv[]){
     char caminho[1000];
 
@@ -685,7 +785,7 @@ void RealizarJogo(tPartida partida, char * argv[]){
 
     FILE * resumo = fopen(caminho,"w");
 
-    int i, qtd_comida_inicial, qtd_colisoes_parede = 0, qtd_movimentos;
+    int i, qtd_comida_inicial;
 
     qtd_comida_inicial = RetornaQtdComida(partida.mapa);
 
@@ -716,7 +816,7 @@ void RealizarJogo(tPartida partida, char * argv[]){
         if(partida.colidiuParede){
             fprintf(resumo, "Movimento %d (%c) colidiu na parede\n", i+1, partida.jogada);
             partida.colidiuParede = 0;
-            qtd_colisoes_parede++;
+            partida.estatisticas.qtdColisoesParede++;
         }
 
         //Se ganhou, para de ler as jogadas
@@ -731,16 +831,17 @@ void RealizarJogo(tPartida partida, char * argv[]){
 
     //Define a quantidade de movimentos realizados no jogo
     if(i == partida.mapa.qtd_movimentos){
-        qtd_movimentos = i;
+        partida.estatisticas.qtdMovimentos = i;
     }else{
-        qtd_movimentos = i+1;
+        partida.estatisticas.qtdMovimentos = i+1;
     }
 
     fclose(resumo); 
 
     //Gera arquivos
-    GeraEstatisticas(argv, partida, qtd_colisoes_parede, qtd_movimentos);
+    GeraEstatisticas(argv, partida.estatisticas, partida.pacman.pontos);
     GeraTrilha(argv, partida);
+    //GeraRanking(argv, partida.ranking, partida.estatisticas);
 
     //Verifica o resultado final
     if(qtd_comida_inicial == partida.pacman.pontos){
