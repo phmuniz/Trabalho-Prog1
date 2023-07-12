@@ -5,13 +5,23 @@ typedef struct
 {
     int linha;
     int coluna;
+}tTunel;
+
+typedef struct 
+{
+    int linha;
+    int coluna;
     int qtd_movimentos;
     char tabuleiro[40][100];
     char comida[40][100];
     int bateuFantasma; // 0 se não bateu, 1 se bateu
-    int colidiuFantasmaParede;
-    int colidiuParede; // 0 se não colidiu, 1 se colidiu 
-    int pegouComida; // 0 se não pegou, 1 se pegou
+    int colidiuFantasmaParede; // 0 se o fantasma não colidiu, 1 se colidiu
+    int colidiuParede; // 0 se o pacman não colidiu, 1 se colidiu 
+    int pegouComida; // 0 se o pacman não pegou, 1 se pegou
+    int entrouTunel1; // 0 se o pacman não entrou, 1 se entrou
+    int entrouTunel2; // 0 se o pacman não entrou, 1 se entrou
+    tTunel tunel1;
+    tTunel tunel2;
 }tMapa;
 
 typedef struct 
@@ -90,15 +100,26 @@ tMapa LeMapa(char * argv[]){
 
     fscanf(entrada, "%d %d %d\n", &mapa.linha, &mapa.coluna, &mapa.qtd_movimentos);
 
-    int i, j;
+    int i, j, qualTunel = 0;
     for(i=0; i<mapa.linha; i++){
         for(j=0; j<mapa.coluna; j++){
             fscanf(entrada, "%c", &mapa.tabuleiro[i][j]);
 
+            //Inicializando posicoes das comidas
             if(mapa.tabuleiro[i][j] == '*'){
                 mapa.comida[i][j] = '*';
             }else{
                 mapa.comida[i][j] = ' ';
+            }
+
+            //Inicializando posicoes dos tuneis
+            if(mapa.tabuleiro[i][j] == '@' && qualTunel == 0){
+                mapa.tunel1.linha = i;
+                mapa.tunel1.coluna = j;
+                qualTunel++;
+            }else if(mapa.tabuleiro[i][j] == '@' && qualTunel){
+                mapa.tunel2.linha = i;
+                mapa.tunel2.coluna = j;
             }
         }
         fscanf(entrada, "%*c");
@@ -110,6 +131,8 @@ tMapa LeMapa(char * argv[]){
     mapa.colidiuFantasmaParede = 0;
     mapa.colidiuParede = 0;
     mapa.pegouComida = 0;
+    mapa.entrouTunel1 = 0;
+    mapa.entrouTunel2 = 0;
 
     return mapa;
 }
@@ -125,14 +148,16 @@ void ImprimeMapa(tMapa mapa){
     }
 }
 
-//Verifica se determinada peça é o PacMan
 int EhPacMan(char peca){
     return peca == '>';
 }
 
-//Verifica se determinada peça é um Fantasma
 int EhFantasma(char peca){
     return peca == 'B' || peca == 'P' || peca == 'I' || peca == 'C';
+}
+
+int EhTunel(char peca){
+    return peca == '@';
 }
 
 tPacMan InicializaPacMan(tMapa mapa){
@@ -305,7 +330,7 @@ tFantasma MexeFantasma(tFantasma fantasma, char direcao){
 tMapa AtualizaMapaFantasma(tFantasma fantasma, tMapa mapa, char tipo, char direcao, char jogada){
     //Verifica se a posição para a qual o fantasma está indo é comida ou pacman ou espaco
     if(EhComida(mapa.tabuleiro[fantasma.linha][fantasma.coluna]) ||  EhPacMan(mapa.tabuleiro[fantasma.linha][fantasma.coluna]) || 
-    mapa.tabuleiro[fantasma.linha][fantasma.coluna] == ' '){
+    mapa.tabuleiro[fantasma.linha][fantasma.coluna] == ' ' || EhTunel(mapa.tabuleiro[fantasma.linha][fantasma.coluna])){
 
         //Se for o pacman, verifica se ele está vindo de encontro
         if(EhPacMan(mapa.tabuleiro[fantasma.linha][fantasma.coluna]) && direcao == 'w' && jogada == 's' ||
@@ -316,9 +341,12 @@ tMapa AtualizaMapaFantasma(tFantasma fantasma, tMapa mapa, char tipo, char direc
         }
         mapa.tabuleiro[fantasma.linha][fantasma.coluna] = tipo;
 
-        //Verifica se o fantasma estava em cima de uma comida
+        //Verifica se o fantasma estava em cima de uma comida ou de um tunel
         if(EhComida(mapa.comida[fantasma.linhaInicial][fantasma.colunaInicial])){
             mapa.tabuleiro[fantasma.linhaInicial][fantasma.colunaInicial] = '*';
+        }else if(fantasma.linhaInicial == mapa.tunel1.linha && fantasma.colunaInicial == mapa.tunel1.coluna ||
+        fantasma.linhaInicial == mapa.tunel2.linha && fantasma.colunaInicial == mapa.tunel2.coluna){
+            mapa.tabuleiro[fantasma.linhaInicial][fantasma.colunaInicial] = '@';
         }else{
             mapa.tabuleiro[fantasma.linhaInicial][fantasma.colunaInicial] = ' ';
         }
@@ -332,9 +360,12 @@ tMapa AtualizaMapaFantasma(tFantasma fantasma, tMapa mapa, char tipo, char direc
         if(direcao == 'd') mapa.tabuleiro[fantasma.linhaInicial][fantasma.colunaInicial-1] = tipo;
         if(direcao == 'a') mapa.tabuleiro[fantasma.linhaInicial][fantasma.colunaInicial+1] = tipo;
 
-        //Verifica se o fantasma estava em cima de uma comida
+        //Verifica se o fantasma estava em cima de uma comida ou de um tunel
         if(EhComida(mapa.comida[fantasma.linhaInicial][fantasma.colunaInicial])){
             mapa.tabuleiro[fantasma.linhaInicial][fantasma.colunaInicial] = '*';
+        }else if(fantasma.linhaInicial == mapa.tunel1.linha && fantasma.colunaInicial == mapa.tunel1.coluna ||
+        fantasma.linhaInicial == mapa.tunel2.linha && fantasma.colunaInicial == mapa.tunel2.coluna){
+            mapa.tabuleiro[fantasma.linhaInicial][fantasma.colunaInicial] = '@';
         }else{
             mapa.tabuleiro[fantasma.linhaInicial][fantasma.colunaInicial] = ' ';
         }
@@ -464,36 +495,104 @@ tPartida MovimentaFantasma(tPartida partida){
 
 tMapa AtualizaMapaPacMan(tPacMan pacman, tMapa mapa){
 
+    //Verifica se a posição para a qual o pacman esta indo é espaco
     if(mapa.tabuleiro[pacman.linha][pacman.coluna] == ' '){
         mapa.tabuleiro[pacman.linha][pacman.coluna] = '>';
         if(!EhFantasma(mapa.tabuleiro[pacman.linhaInicial][pacman.colunaInicial])){
             mapa.tabuleiro[pacman.linhaInicial][pacman.colunaInicial] = ' ';
         }
+        //Verifica se o pacman estava em cima de um tunel
+        if(pacman.linhaInicial == mapa.tunel1.linha && pacman.colunaInicial == mapa.tunel1.coluna ||
+        pacman.linhaInicial == mapa.tunel2.linha && pacman.colunaInicial == mapa.tunel2.coluna){
+            mapa.tabuleiro[pacman.linhaInicial][pacman.colunaInicial] = '@';
+        }
     }
+
+    //Verifica se a posição para a qual o pacman esta indo é comida
     else if(EhComida(mapa.tabuleiro[pacman.linha][pacman.coluna])){
         mapa.tabuleiro[pacman.linha][pacman.coluna] = '>';
         mapa.comida[pacman.linha][pacman.coluna] = ' ';
         if(!EhFantasma(mapa.tabuleiro[pacman.linhaInicial][pacman.colunaInicial])){
             mapa.tabuleiro[pacman.linhaInicial][pacman.colunaInicial] = ' ';
         }
+        //Verifica se o pacman estava em cima de um tunel
+        if(pacman.linhaInicial == mapa.tunel1.linha && pacman.colunaInicial == mapa.tunel1.coluna ||
+        pacman.linhaInicial == mapa.tunel2.linha && pacman.colunaInicial == mapa.tunel2.coluna){
+            mapa.tabuleiro[pacman.linhaInicial][pacman.colunaInicial] = '@';
+        }
         mapa.pegouComida = 1;
     }
+
+    //Verifica se a posição para a qual o pacman esta indo é fantasma
     else if(EhFantasma(mapa.tabuleiro[pacman.linha][pacman.coluna])){
         if(!EhFantasma(mapa.tabuleiro[pacman.linhaInicial][pacman.colunaInicial])){
             mapa.tabuleiro[pacman.linhaInicial][pacman.colunaInicial] = ' ';
         }
+        //Verifica se o pacman estava em cima de um tunel
+        if(pacman.linhaInicial == mapa.tunel1.linha && pacman.colunaInicial == mapa.tunel1.coluna ||
+        pacman.linhaInicial == mapa.tunel2.linha && pacman.colunaInicial == mapa.tunel2.coluna){
+            mapa.tabuleiro[pacman.linhaInicial][pacman.colunaInicial] = '@';
+        }
         mapa.bateuFantasma = 1;
     }
+
+    //Verifica se a posição para a qual o pacman esta indo é tunel 1
+    else if(pacman.linha == mapa.tunel1.linha && pacman.coluna == mapa.tunel1.coluna){
+        mapa.tabuleiro[mapa.tunel2.linha][mapa.tunel2.coluna] = '>';
+        if(!EhFantasma(mapa.tabuleiro[pacman.linhaInicial][pacman.colunaInicial])){
+            mapa.tabuleiro[pacman.linhaInicial][pacman.colunaInicial] = ' ';
+        }
+        mapa.entrouTunel1 = 1;
+    }
+    
+    //Verifica se a posição para a qual o pacman esta indo é tunel 2
+    else if(pacman.linha == mapa.tunel2.linha && pacman.coluna == mapa.tunel2.coluna){
+        mapa.tabuleiro[mapa.tunel1.linha][mapa.tunel1.coluna] = '>';
+        if(!EhFantasma(mapa.tabuleiro[pacman.linhaInicial][pacman.colunaInicial])){
+            mapa.tabuleiro[pacman.linhaInicial][pacman.colunaInicial] = ' ';
+        }
+        mapa.entrouTunel2 = 1;
+    }
+
+    //Verifica se a posição para a qual o pacman esta indo é parede
     else if(mapa.tabuleiro[pacman.linha][pacman.coluna] == '#'){
         if(!EhFantasma(mapa.tabuleiro[pacman.linhaInicial][pacman.colunaInicial])){
             mapa.tabuleiro[pacman.linhaInicial][pacman.colunaInicial] = '>';
         }else{
             mapa.bateuFantasma = 1;
         }
+        //Verifica se o pacman estava em cima de um tunel 1
+        if(pacman.linhaInicial == mapa.tunel1.linha && pacman.colunaInicial == mapa.tunel1.coluna){
+            mapa.tabuleiro[pacman.linhaInicial][pacman.colunaInicial] = '@';
+            mapa.tabuleiro[mapa.tunel2.linha][mapa.tunel2.coluna] = '>';
+            mapa.entrouTunel1 = 1;
+        }
+        //Verifica se o pacman estava em cima de um tunel 2
+        if(pacman.linhaInicial == mapa.tunel2.linha && pacman.colunaInicial == mapa.tunel2.coluna){
+            mapa.tabuleiro[pacman.linhaInicial][pacman.colunaInicial] = '@';
+            mapa.tabuleiro[mapa.tunel1.linha][mapa.tunel1.coluna] = '>';
+            mapa.entrouTunel2 = 1;
+        }
         mapa.colidiuParede = 1;
     }
 
     return mapa;
+}
+
+//Verifica se entrou no tunel e atualiza as posicoes
+tPartida VerificaTunel(tPartida partida){
+    if(partida.mapa.entrouTunel1){
+        partida.pacman.linha = partida.mapa.tunel2.linha;
+        partida.pacman.coluna = partida.mapa.tunel2.coluna;
+        partida.mapa.entrouTunel1 = 0;
+    } 
+    if(partida.mapa.entrouTunel2){
+        partida.pacman.linha = partida.mapa.tunel1.linha;
+        partida.pacman.coluna = partida.mapa.tunel1.coluna;
+        partida.mapa.entrouTunel2 = 0;
+    }
+
+    return partida;
 }
 
 tPacMan AtualizaPosicaoPacMan(tPacMan pacman){
@@ -521,6 +620,7 @@ tPartida MovimentaPacMan(tPartida partida){
             partida.ranking.movimentoW.qtdColisoesParede++;
             partida.pacman.linha = partida.pacman.linhaInicial;
         } 
+        partida = VerificaTunel(partida);
         partida.pacman = AtualizaPosicaoPacMan(partida.pacman);
 
         break;
@@ -537,7 +637,8 @@ tPartida MovimentaPacMan(tPartida partida){
         if(partida.mapa.colidiuParede){
             partida.ranking.movimentoS.qtdColisoesParede++;
             partida.pacman.linha = partida.pacman.linhaInicial;
-        } 
+        }
+        partida = VerificaTunel(partida);
         partida.pacman = AtualizaPosicaoPacMan(partida.pacman);
 
         break;
@@ -554,7 +655,8 @@ tPartida MovimentaPacMan(tPartida partida){
         if(partida.mapa.colidiuParede){
             partida.ranking.movimentoD.qtdColisoesParede++;
             partida.pacman.coluna = partida.pacman.colunaInicial;
-        } 
+        }
+        partida = VerificaTunel(partida);
         partida.pacman = AtualizaPosicaoPacMan(partida.pacman);
 
         break;
@@ -571,7 +673,8 @@ tPartida MovimentaPacMan(tPartida partida){
         if(partida.mapa.colidiuParede){
             partida.ranking.movimentoA.qtdColisoesParede++;
             partida.pacman.coluna = partida.pacman.colunaInicial;
-        } 
+        }
+        partida = VerificaTunel(partida);  
         partida.pacman = AtualizaPosicaoPacMan(partida.pacman);
 
         break;
